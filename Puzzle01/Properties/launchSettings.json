@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Puzzle01": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\MatthiasMayrock\\Desktop\\input.txt"
+    }
+  }
+}
