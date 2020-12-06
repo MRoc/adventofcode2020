@@ -8,22 +8,17 @@ namespace Puzzle06
     // https://adventofcode.com/2020/day/6
     static class Program
     {
+        // Puzzle 1: 6662
+        // Puzzle 2: 3382
         static void Main()
         {
-            // Example 1: 11
-            // Puzzle 1.: 6662
-            // Example 2: 6
-            // Puzzle 2.: 3382
-
-            Console.WriteLine($"Example 1: {CountAny("Puzzle06.example.txt")}");
-            Console.WriteLine($"Puzzle 1.: {CountAny("Puzzle06.input.txt")}");
-            Console.WriteLine($"Example 2: {CountAll("Puzzle06.example.txt")}");
-            Console.WriteLine($"Puzzle 2.: {CountAll("Puzzle06.input.txt")}");
+            Console.WriteLine($"Puzzle 1: {Puzzle1()}");
+            Console.WriteLine($"Puzzle 2: {Puzzle2()}");
         }
 
-        private static int CountAny(string resourceName)
+        private static int Puzzle1()
         {
-            return LoadInput(resourceName)
+            return LoadInput()
                 .Split("\n\n")
                 .Select(s => s
                     .Split('\n')
@@ -34,9 +29,9 @@ namespace Puzzle06
                 .Sum();
         }
 
-        private static int CountAll(string resourceName)
+        private static int Puzzle2()
         {
-            return LoadInput(resourceName)
+            return LoadInput()
                 .Split("\n\n")
                 .Select(s => s
                     .Split('\n')
@@ -47,12 +42,12 @@ namespace Puzzle06
                 .Sum();
         }
 
-        private static string LoadInput(string name)
+        private static string LoadInput()
         {
-            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream(name);
+            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Puzzle06.input.txt");
             if (stream is null)
             {
-                throw new InvalidOperationException($"Could not load resource {name}!");
+                throw new InvalidOperationException($"Could not load resource!");
             }
 
             using var reader = new StreamReader(stream);

@@ -9,20 +9,27 @@ using System.Text.RegularExpressions;
 namespace Puzzle04
 {
     // https://adventofcode.com/2020/day/4
-    class Program
+    static class Program
     {
-        // Solution 1: Found 222 valid passports
-        // Solution 2: Found 140 valid passports
+        // Puzzle 1: 222
+        // Puzzle 2: 140
         static void Main()
         {
-            var validPassports1 = Parse(LoadInput()).Count(p => p.IsValid1());
-            Console.WriteLine($"Solution 1: Found {validPassports1} valid passports");
-
-            var validPassports2 = Parse(LoadInput()).Count(p => p.IsValid2());
-            Console.WriteLine($"Solution 2: Found {validPassports2} valid passports");
+            Console.WriteLine($"Puzzle 1: {Puzzle1()}");
+            Console.WriteLine($"Puzzle 2: {Puzzle2()}");
         }
 
-        private static IEnumerable<Passport> Parse(string input)
+        private static long Puzzle1()
+        {
+            return LoadInput().Parse().Count(p => p.IsValid1());
+        }
+
+        private static long Puzzle2()
+        {
+            return LoadInput().Parse().Count(p => p.IsValid2());
+        }
+
+        private static IEnumerable<Passport> Parse(this string input)
         {
             return input.Split("\n\n")
                 .Where(s => !string.IsNullOrEmpty(s))
@@ -167,7 +174,6 @@ namespace Puzzle04
                 return sb.ToString();
             }
         }
-
 
         private static string LoadInput()
         {
