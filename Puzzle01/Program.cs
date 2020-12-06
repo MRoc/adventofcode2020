@@ -9,33 +9,52 @@ namespace Puzzle01
     // https://adventofcode.com/2020/day/1
     static class Program
     {
-        // 245+131+1644=2020 -> 245*131*1644=52764180
-        // 245+1644+131=2020 -> 245*1644*131=52764180
-        // 131+245+1644=2020 -> 131*245*1644=52764180
-        // 131+1644+245=2020 -> 131*1644*245=52764180
-        // 1644+245+131=2020 -> 1644*245*131=52764180
-        // 1644+131+245=2020 -> 1644*131*245=52764180
+        // 1436 + 584       = 2020 -> 1436 * 584       = 838624
+        // 245 + 131 + 1644 = 2020 -> 245 * 131 * 1644 = 52764180
         static void Main()
         {
-            foreach (var t in LoadInput()
+            var numbers = LoadInput()
                 .Split('\n')
                 .Where(l => !string.IsNullOrWhiteSpace(l))
                 .Select(l => int.Parse(l))
                 .Distinct()
-                .Permutation()
-                .Where(t => t.Item1 + t.Item2 + t.Item3 == 2020))
+                .ToArray();
+
+            foreach (var t in numbers
+                .Permutation2()
+                .Where(t => t.Sum() == 2020))
             {
-                Console.WriteLine($"{t.Item1}+{t.Item2}+{t.Item3}=2020 -> {t.Item1}*{t.Item2}*{t.Item3}={t.Item1 * t.Item2 * t.Item3}");
+                Console.WriteLine($"{t[0]} + {t[1]} = 2020 -> {t[0]} * {t[1]} = {t.Mul()}");
+            }
+
+            foreach (var t in numbers
+                .Permutation3()
+                .Where(t => t.Sum() == 2020))
+            {
+                Console.WriteLine($"{t[0]} + {t[1]} + {t[2]} = 2020 -> {t[0]} * {t[1]} * {t[2]} = {t.Mul()}");
             }
         }
 
-        private static IEnumerable<Tuple<T, T, T>> Permutation<T>(this IEnumerable<T> seq)
+        private static IEnumerable<T[]> Permutation2<T>(this IEnumerable<T> seq)
+        {
+            var arr = seq.ToArray();
+            return arr
+                .SelectMany(e0 => arr.SkipWhile(ee => !ee.Equals(e0))
+                    .Select(e1 => new[] { e0, e1 }));
+        }
+
+        private static IEnumerable<T[]> Permutation3<T>(this IEnumerable<T> seq)
         {
             var arr = seq.ToArray();
             return arr
                 .SelectMany(e0 => arr.SkipWhile(ee => !ee.Equals(e0))
                     .SelectMany(e1 => arr.SkipWhile(eee => !eee.Equals(e1))
-                        .Select(e2 => Tuple.Create(e0, e1, e2))));
+                        .Select(e2 => new[] { e0, e1, e2 })));
+        }
+
+        private static long Mul(this IEnumerable<int> seq)
+        {
+            return seq.Aggregate(1L, (a, b) => a * b);
         }
 
         private static string LoadInput()
