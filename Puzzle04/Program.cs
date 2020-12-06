@@ -8,9 +8,10 @@ using System.Text.RegularExpressions;
 
 namespace Puzzle04
 {
+    // https://adventofcode.com/2020/day/4
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             var validPassports1 = Parse(LoadInput().Split("\n")).Count(p => p.IsValid1());
             Console.WriteLine($"Solution 1: Found {validPassports1} valid passports");
@@ -180,12 +181,14 @@ namespace Puzzle04
             };
 
 
-
-        private bool IsInRange(string value, int min, int max)
+            private bool IsInRange(string value, int min, int max)
             {
-                var number = int.MinValue;
-                int.TryParse(value, out number);
-                return number >= min && number <= max;
+                if (int.TryParse(value, out var number))
+                {
+                    return number >= min && number <= max;
+                }
+
+                return false;
             }
 
             public override string ToString()

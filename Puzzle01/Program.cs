@@ -5,7 +5,8 @@ using System.Reflection;
 
 namespace Puzzle01
 {
-    class Program
+    // https://adventofcode.com/2020/day/1
+    static class Program
     {
         static void Main(string[] _)
         {

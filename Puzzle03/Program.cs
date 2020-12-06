@@ -6,6 +6,7 @@ using System.Reflection;
 
 namespace Puzzle03
 {
+    // https://adventofcode.com/2020/day/3
     static class Program
     {
         // 1/1: Found 68 trees(1)
@@ -47,7 +48,7 @@ namespace Puzzle03
                     Tuple.Create(1, 2),
                 }
                 .Select(s => Count(grid, s.Item1, s.Item2))
-                .Aggregate(1l, (a, b) => a * b);
+                .Aggregate(1L, (a, b) => a * b);
         }
 
         private static int Count(string[] grid, int dX, int dY)
