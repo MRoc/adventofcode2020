@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="example.txt" />
+    <None Remove="input.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="example.txt" />
+    <EmbeddedResource Include="input.txt" />
+  </ItemGroup>
+
+</Project>
