@@ -63,7 +63,6 @@ namespace Puzzle04
                        && !string.IsNullOrEmpty(ecl)
                        && !string.IsNullOrEmpty(pid);
             }
-
             public bool IsValid2()
             {
                 return IsValid_byr()
@@ -79,17 +78,14 @@ namespace Puzzle04
             {
                 return IsInRange(byr, 1920, 2002);
             }
-
             private bool IsValid_iyr()
             {
                 return IsInRange(iyr, 2010, 2020);
             }
-
             private bool IsValid_eyr()
             {
                 return IsInRange(eyr, 2020, 2030);
             }
-
             private bool IsValid_hgt()
             {
                 if (string.IsNullOrEmpty(hgt))
@@ -117,17 +113,6 @@ namespace Puzzle04
                 }
 
                 return Regex.Match(hcl, @"^\#[a-z0-9]{6}\b", RegexOptions.ExplicitCapture).Success;
-
-                //if (!hcl.StartsWith("#"))
-                //{
-                //    return false;
-                //}
-                //var h = hcl.Substring(1);
-                //if (h.Length != 6)
-                //{
-                //    return false;
-                //}
-                //return h.All(c => c >= '0' && c <= '9' || c >= 'a' && c <= 'f');
             }
             private bool IsValid_pid()
             {
@@ -137,33 +122,16 @@ namespace Puzzle04
                 }
 
                 return Regex.Match(pid, @"^[0-9]{9}\b", RegexOptions.ExplicitCapture).Success;
-
-                //if (pid.Length != 9)
-                //{
-                //    return false;
-                //}
-                //return pid.All(c => c >= '0' && c <= '9');
-
-                //return pid.Count(c => c >= '0' && c <= '9') == 9;
             }
-
             private bool IsValid_ecl()
             {
-                if (string.IsNullOrEmpty(hcl))
+                if (string.IsNullOrEmpty(ecl))
                 {
                     return false;
                 }
 
-                //return Regex.Match(hcl, @"^(amb|blu|brn|gry|grn|hzl|oth)\b", RegexOptions.ExplicitCapture).Success;
-
-                return _validEcls.Contains(ecl);
+                return Regex.Match(ecl, @"^(amb|blu|brn|gry|grn|hzl|oth)\b", RegexOptions.ExplicitCapture).Success;
             }
-
-            private static readonly string[] _validEcls = new string[]
-            {
-                "amb", "blu", "brn", "gry", "grn", "hzl", "oth"
-            };
-
 
             private bool IsInRange(string value, int min, int max)
             {
