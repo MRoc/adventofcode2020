@@ -22,16 +22,20 @@ namespace Puzzle01
                 .Where(l => !string.IsNullOrWhiteSpace(l))
                 .Select(l => int.Parse(l))
                 .Distinct()
-                .Permutate()
+                .Permutation()
                 .Where(t => t.Item1 + t.Item2 + t.Item3 == 2020))
             {
                 Console.WriteLine($"{t.Item1}+{t.Item2}+{t.Item3}=2020 -> {t.Item1}*{t.Item2}*{t.Item3}={t.Item1 * t.Item2 * t.Item3}");
             }
         }
 
-        private static IEnumerable<Tuple<T, T, T>> Permutate<T>(this IEnumerable<T> seq)
+        private static IEnumerable<Tuple<T, T, T>> Permutation<T>(this IEnumerable<T> seq)
         {
-            return seq.SelectMany(e0 => seq.SelectMany(e1 => seq.Select(e2 => Tuple.Create(e0, e1, e2))));
+            var arr = seq.ToArray();
+            return arr
+                .SelectMany(e0 => arr.SkipWhile(ee => !ee.Equals(e0))
+                    .SelectMany(e1 => arr.SkipWhile(eee => !eee.Equals(e1))
+                        .Select(e2 => Tuple.Create(e0, e1, e2))));
         }
 
         private static string LoadInput()
