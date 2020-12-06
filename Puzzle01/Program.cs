@@ -9,30 +9,38 @@ namespace Puzzle01
     // https://adventofcode.com/2020/day/1
     static class Program
     {
-        // 1436 + 584       = 2020 -> 1436 * 584       = 838624
-        // 245 + 131 + 1644 = 2020 -> 245 * 131 * 1644 = 52764180
+        // Puzzle 1: 838624
+        // Puzzle 2: 52764180
         static void Main()
         {
-            var numbers = LoadInput()
+            Console.WriteLine($"Puzzle 1: {Puzzle1()}");
+            Console.WriteLine($"Puzzle 2: {Puzzle2()}");
+        }
+
+        private static long Puzzle1()
+        {
+            return LoadInput()
                 .Split('\n')
                 .Where(l => !string.IsNullOrWhiteSpace(l))
                 .Select(l => int.Parse(l))
                 .Distinct()
-                .ToArray();
-
-            foreach (var t in numbers
                 .Permutation2()
-                .Where(t => t.Sum() == 2020))
-            {
-                Console.WriteLine($"{t[0]} + {t[1]} = 2020 -> {t[0]} * {t[1]} = {t.Mul()}");
-            }
+                .Where(t => t.Sum() == 2020)
+                .Select(t => t.Mul())
+                .FirstOrDefault();
+        }
 
-            foreach (var t in numbers
+        private static long Puzzle2()
+        {
+            return LoadInput()
+                .Split('\n')
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .Select(l => int.Parse(l))
+                .Distinct()
                 .Permutation3()
-                .Where(t => t.Sum() == 2020))
-            {
-                Console.WriteLine($"{t[0]} + {t[1]} + {t[2]} = 2020 -> {t[0]} * {t[1]} * {t[2]} = {t.Mul()}");
-            }
+                .Where(t => t.Sum() == 2020)
+                .Select(t => t.Mul())
+                .FirstOrDefault();
         }
 
         private static IEnumerable<T[]> Permutation2<T>(this IEnumerable<T> seq)

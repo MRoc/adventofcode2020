@@ -6,21 +6,32 @@ using System.Reflection;
 namespace Puzzle02
 {
     // https://adventofcode.com/2020/day/2
-    class Program
+    static class Program
     {
-        static void Main(string[] _)
+        // Puzzle 1: 424
+        // Puzzle 2: 747
+        static void Main()
         {
-            var entries = LoadInput()
+            Console.WriteLine($"Puzzle 1: {Puzzle1()}");
+            Console.WriteLine($"Puzzle 2: {Puzzle2()}");
+        }
+
+        private static int Puzzle1()
+        {
+            return LoadInput()
                 .Split('\n')
                 .Where(l => !string.IsNullOrEmpty(l))
                 .Select(l => new Entry(l))
-                .ToArray();
+                .Count(e => e.IsValid1());
+        }
 
-            var validEntries1 = entries.Count(e => e.IsValid1());
-            Console.WriteLine($"There are {validEntries1} valid1 passwords!");
-
-            var validEntries2 = entries.Count(e => e.IsValid2());
-            Console.WriteLine($"There are {validEntries2} valid2 passwords!");
+        private static int Puzzle2()
+        {
+            return LoadInput()
+                .Split('\n')
+                .Where(l => !string.IsNullOrEmpty(l))
+                .Select(l => new Entry(l))
+                .Count(e => e.IsValid2());
         }
 
         class Entry
@@ -65,20 +76,17 @@ namespace Puzzle02
             }
         }
 
-        private static string LoadInput()
-        {
-            var assembly = Assembly.GetCallingAssembly();
-            using var stream = assembly.GetManifestResourceStream("Puzzle02.input_pw.txt");
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
-        }
-    }
-
-    static class Extensions
-    {
         public static bool Has(this string text, int index, char c)
         {
             return index < text.Length && text[index] == c;
+        }
+
+        private static string LoadInput()
+        {
+            var assembly = Assembly.GetCallingAssembly();
+            using var stream = assembly.GetManifestResourceStream("Puzzle02.input.txt");
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
         }
     }
 }

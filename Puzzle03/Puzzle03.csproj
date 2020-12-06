@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="input_maze.txt" />
+    <None Remove="input.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="input_maze.txt">
+    <EmbeddedResource Include="input.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

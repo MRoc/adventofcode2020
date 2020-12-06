@@ -9,36 +9,22 @@ namespace Puzzle03
     // https://adventofcode.com/2020/day/3
     static class Program
     {
-        // 1/1: Found 68 trees(1)
-        // 3/1: Found 203 trees(1)
-        // 5/1: Found 78 trees(1)
-        // 7/1: Found 77 trees(1)
-        // 1/2: Found 40 trees(1)
-        // Result: 3316272960
+        // Puzzle 1: 203
+        // Puzzle 2: 3316272960
         static void Main()
         {
-            var result = MultiplyNumberOfTreesOnDifferentSlopes(SplitInput(LoadInput()));
-            Console.WriteLine($"Result: {result}");
+            Console.WriteLine($"Puzzle 1: {Puzzle1()}");
+            Console.WriteLine($"Puzzle 2: {Puzzle2()}");
         }
 
-        private static string LoadInput()
+        private static long Puzzle1()
         {
-            var assembly = Assembly.GetCallingAssembly();
-            using var stream = assembly.GetManifestResourceStream("Puzzle03.input_maze.txt");
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
+            return Count(LoadInput(), 3, 1);
         }
 
-        private static string[] SplitInput(string input)
+        private static long Puzzle2()
         {
-            return input
-                .Split("\n")
-                .Where(l => !string.IsNullOrWhiteSpace(l))
-                .ToArray();
-        }
-
-        private static long MultiplyNumberOfTreesOnDifferentSlopes(string[] grid)
-        {
+            var grid = LoadInput();
             return new[]
                 {
                     Tuple.Create(1, 1),
@@ -51,11 +37,21 @@ namespace Puzzle03
                 .Aggregate(1L, (a, b) => a * b);
         }
 
+        private static string[] LoadInput()
+        {
+            var assembly = Assembly.GetCallingAssembly();
+            using var stream = assembly.GetManifestResourceStream("Puzzle03.input.txt");
+            using var reader = new StreamReader(stream);
+            return reader
+                .ReadToEnd()
+                .Split("\n")
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .ToArray();
+        }
+
         private static int Count(string[] grid, int dX, int dY)
         {
-            var result = Walk(grid, dX, dY).Count(c => c == '#');
-            Console.WriteLine($"{dX}/{dY}: Found {result} trees (1)");
-            return result;
+            return Walk(grid, dX, dY).Count(c => c == '#');
         }
 
         private static IEnumerable<char> Walk(string[] grid, int dX, int dY)
