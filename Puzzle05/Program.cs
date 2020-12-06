@@ -9,6 +9,9 @@ namespace Puzzle05
     // https://adventofcode.com/2020/day/5
     public static class Program
     {
+        // Highest seat ID: 820
+        // Highest seat ID: 994
+        // Free seat: 741
         public static void Main()
         {
             Example();
@@ -25,29 +28,19 @@ namespace Puzzle05
                 "BBFFBBFRLL"
             };
 
-            foreach (var seat in seats)
-            {
-                var (row, column, id) = CalcRowColumnId(seat);
-                Console.WriteLine($"{seat}: row {row}, column {column}, seat ID {id}");
-            }
-
-            var highestSeatId = seats.Select(s => CalcRowColumnId(s).Item3).Max();
+            var highestSeatId = seats.Select(s => CalcId(s)).Max();
             Console.WriteLine($"Highest seat ID: {highestSeatId}");
         }
 
         private static void Puzzle1()
         {
-            var highestSeatId = LoadInput()
-                .Select(s => CalcRowColumnId(s).Item3)
-                .Max();
+            var highestSeatId = LoadInput().Select(CalcId).Max();
             Console.WriteLine($"Highest seat ID: {highestSeatId}");
         }
 
         private static void Puzzle2()
         {
-            var allocatedSeats = LoadInput()
-                .Select(s => CalcRowColumnId(s).Item3)
-                .ToArray();
+            var allocatedSeats = LoadInput().Select(CalcId).ToArray();
 
             var minSeat = allocatedSeats.Min();
             var maxSeat = allocatedSeats.Max();
@@ -64,38 +57,9 @@ namespace Puzzle05
 
         }
 
-        private static Tuple<int, int, int> CalcRowColumnId(string seat)
+        private static int CalcId(string seat)
         {
-            var row = Find(seat.Take(7).Select(c => c == 'B' ? +1 : -1), 0, 127);
-            var col = Find(seat.Skip(7).Select(c => c == 'R' ? +1 : -1), 0, 7);
-            var id = row * 8 + col;
-            return Tuple.Create(row, col, id);
-        }
-
-        private static int Find(IEnumerable<int> pattern, int min, int max)
-        {
-            var l = min;
-            var r = max;
-
-            foreach (var c in pattern)
-            {
-                int m = (int)Math.Ceiling((r - l) * 0.5);
-                if (c > 0)
-                {
-                    l += m;
-                }
-                else if (c < 0)
-                {
-                    r -= m;
-                }
-            }
-
-            if (l != r)
-            {
-                throw new InvalidOperationException($"l={l} != r={r}");
-            }
-
-            return l;
+            return Convert.ToInt32(seat.Replace('B', '1').Replace('F', '0').Replace('R', '1').Replace('L', '0'), 2);
         }
 
         private static string[] LoadInput()
