@@ -11,47 +11,31 @@ namespace Puzzle04
     // https://adventofcode.com/2020/day/4
     class Program
     {
+        // Solution 1: Found 222 valid passports
+        // Solution 2: Found 140 valid passports
         static void Main()
         {
-            var validPassports1 = Parse(LoadInput().Split("\n")).Count(p => p.IsValid1());
+            var validPassports1 = Parse(LoadInput()).Count(p => p.IsValid1());
             Console.WriteLine($"Solution 1: Found {validPassports1} valid passports");
 
-            var validPassports2 = Parse(LoadInput().Split("\n")).Count(p => p.IsValid2());
+            var validPassports2 = Parse(LoadInput()).Count(p => p.IsValid2());
             Console.WriteLine($"Solution 2: Found {validPassports2} valid passports");
         }
 
-        private static IEnumerable<Passport> Parse(string[] input)
+        private static IEnumerable<Passport> Parse(string input)
         {
-            var sb = new StringBuilder();
-            foreach (var line in input)
-            {
-                if (string.IsNullOrEmpty(line))
-                {
-                    yield return new Passport(sb.ToString());
-                    sb = new StringBuilder();
-                }
-                else
-                {
-                    if (sb.Length > 0)
-                    {
-                        sb.Append(' ');
-                    }
-                    sb.Append(line);
-                }
-            }
-
-            if (sb.Length > 0)
-            {
-                yield return new Passport(sb.ToString());
-            }
+            return input.Split("\n\n")
+                .Where(s => !string.IsNullOrEmpty(s))
+                .Select(s => new Passport(s.Replace('\n', ' ')));
         }
 
         public class Passport
         {
             public Passport(string text)
-            {
+            { 
                 foreach (var kv in text
                     .Split(' ')
+                    .Where(s => !string.IsNullOrEmpty(s))
                     .Select(s => s.Split(':')))
                 {
                     var key = kv[0];
