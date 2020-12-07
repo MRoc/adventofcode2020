@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="input.txt" />
+    <None Remove="input07.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="input.txt" />
+    <EmbeddedResource Include="input07.txt" />
   </ItemGroup>
 
 </Project>

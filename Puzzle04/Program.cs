@@ -177,7 +177,7 @@ namespace Puzzle04
 
         private static string LoadInput()
         {
-            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Puzzle04.input.txt");
+            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Puzzle04.input04.txt");
             using var reader = new StreamReader(stream);
             return reader.ReadToEnd();
         }

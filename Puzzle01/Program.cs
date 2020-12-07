@@ -67,7 +67,7 @@ namespace Puzzle01
 
         private static string LoadInput()
         {
-            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Puzzle01.input.txt");
+            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Puzzle01.input01.txt");
             using var reader = new StreamReader(stream);
             return reader.ReadToEnd();
         }

@@ -40,7 +40,7 @@ namespace Puzzle03
         private static string[] LoadInput()
         {
             var assembly = Assembly.GetCallingAssembly();
-            using var stream = assembly.GetManifestResourceStream("Puzzle03.input.txt");
+            using var stream = assembly.GetManifestResourceStream("Puzzle03.input03.txt");
             using var reader = new StreamReader(stream);
             return reader
                 .ReadToEnd()

@@ -44,7 +44,7 @@ namespace Puzzle06
 
         private static string LoadInput()
         {
-            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Puzzle06.input.txt");
+            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Puzzle06.input06.txt");
             if (stream is null)
             {
                 throw new InvalidOperationException($"Could not load resource!");
