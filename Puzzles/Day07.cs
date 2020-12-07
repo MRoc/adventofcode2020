@@ -1,27 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
-namespace Puzzle07
-{
-    static class Program
+namespace Puzzles
+{       
+    // Puzzle 1: 115
+    // Puzzle 2: 1250
+    public static class Day07
     {
-        // Puzzle 1: 115
-        // Puzzle 2: 1250
-
-        static void Main(string[] args)
+        public static int Puzzle1()
         {
-            Console.WriteLine($"Puzzle 1: {Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Puzzle2()}");
-        }
-
-        private static int Puzzle1()
-        {
-            return LoadInput()
-                .Split('\n')
-                .Where(l => !string.IsNullOrEmpty(l))
+            return Input.LoadLines("Puzzles.Input.input07.txt")
                 .Select(l => new Rule(l))
                 .ToArray()
                 .FindParents("shiny gold")
@@ -35,11 +23,9 @@ namespace Puzzle07
             return rulesContainingColor.Concat(rulesContainingColor.SelectMany(r => FindParents(rules, r.Color)));
         }
 
-        private static int Puzzle2()
+        public static int Puzzle2()
         {
-            return LoadInput()
-                .Split('\n')
-                .Where(l => !string.IsNullOrEmpty(l))
+            return Input.LoadLines("Puzzles.Input.input07.txt")
                 .Select(l => new Rule(l))
                 .ToArray()
                 .SumChildren("shiny gold") - 1;
@@ -53,7 +39,7 @@ namespace Puzzle07
                 .Sum(i => i.Value * rules.SumChildren(i.Key));
         }
 
-        public class Rule
+        private class Rule
         {
             public Rule(string text)
             {
@@ -83,19 +69,6 @@ namespace Puzzle07
             public string Color { get; }
 
             public IDictionary<string, int> Contains { get; } = new Dictionary<string, int>();
-        }
-
-
-        private static string LoadInput()
-        {
-            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Puzzle07.input07.txt");
-            if (stream is null)
-            {
-                throw new InvalidOperationException($"Could not load resource!");
-            }
-
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd().Replace("\r", string.Empty);
         }
     }
 }

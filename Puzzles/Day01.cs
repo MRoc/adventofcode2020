@@ -1,27 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
-namespace Puzzle01
+namespace Puzzles
 {
-    // https://adventofcode.com/2020/day/1
-    static class Program
+    // Puzzle 1: 838624
+    // Puzzle 2: 52764180
+    public static class Day01
     {
-        // Puzzle 1: 838624
-        // Puzzle 2: 52764180
-        static void Main()
+        public static long Puzzle1()
         {
-            Console.WriteLine($"Puzzle 1: {Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Puzzle2()}");
-        }
-
-        private static long Puzzle1()
-        {
-            return LoadInput()
-                .Split('\n')
-                .Where(l => !string.IsNullOrWhiteSpace(l))
+            return Input.LoadLines("Puzzles.Input.input01.txt")
                 .Select(l => int.Parse(l))
                 .Distinct()
                 .Permutation2()
@@ -30,11 +18,9 @@ namespace Puzzle01
                 .FirstOrDefault();
         }
 
-        private static long Puzzle2()
+        public static long Puzzle2()
         {
-            return LoadInput()
-                .Split('\n')
-                .Where(l => !string.IsNullOrWhiteSpace(l))
+            return Input.LoadLines("Puzzles.Input.input01.txt")
                 .Select(l => int.Parse(l))
                 .Distinct()
                 .Permutation3()
@@ -63,13 +49,6 @@ namespace Puzzle01
         private static long Mul(this IEnumerable<int> seq)
         {
             return seq.Aggregate(1L, (a, b) => a * b);
-        }
-
-        private static string LoadInput()
-        {
-            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Puzzle01.input01.txt");
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
         }
     }
 }

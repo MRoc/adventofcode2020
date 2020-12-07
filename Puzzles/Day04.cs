@@ -1,32 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Puzzle04
+namespace Puzzles
 {
-    // https://adventofcode.com/2020/day/4
-    static class Program
+    // Puzzle 1: 222
+    // Puzzle 2: 140
+    public static class Day04
     {
-        // Puzzle 1: 222
-        // Puzzle 2: 140
-        static void Main()
+        public static long Puzzle1()
         {
-            Console.WriteLine($"Puzzle 1: {Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Puzzle2()}");
+            return Input.Load("Puzzles.Input.input04.txt").Parse().Count(p => p.IsValid1());
         }
 
-        private static long Puzzle1()
+        public static long Puzzle2()
         {
-            return LoadInput().Parse().Count(p => p.IsValid1());
-        }
-
-        private static long Puzzle2()
-        {
-            return LoadInput().Parse().Count(p => p.IsValid2());
+            return Input.Load("Puzzles.Input.input04.txt").Parse().Count(p => p.IsValid2());
         }
 
         private static IEnumerable<Passport> Parse(this string input)
@@ -39,7 +29,7 @@ namespace Puzzle04
         public class Passport
         {
             public Passport(string text)
-            { 
+            {
                 foreach (var kv in text
                     .Split(' ')
                     .Where(s => !string.IsNullOrEmpty(s))
@@ -173,13 +163,6 @@ namespace Puzzle04
 
                 return sb.ToString();
             }
-        }
-
-        private static string LoadInput()
-        {
-            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream("Puzzle04.input04.txt");
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
         }
     }
 }

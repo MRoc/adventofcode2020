@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Input\input01.txt" />
+    <None Remove="Input\input02.txt" />
+    <None Remove="Input\input03.txt" />
+    <None Remove="Input\input04.txt" />
+    <None Remove="Input\input05.txt" />
+    <None Remove="Input\input06.txt" />
+    <None Remove="Input\input07.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Input\input01.txt" />
+    <EmbeddedResource Include="Input\input02.txt" />
+    <EmbeddedResource Include="Input\input03.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Input\input04.txt" />
+    <EmbeddedResource Include="Input\input05.txt" />
+    <EmbeddedResource Include="Input\input06.txt" />
+    <EmbeddedResource Include="Input\input07.txt" />
+  </ItemGroup>
+
+</Project>

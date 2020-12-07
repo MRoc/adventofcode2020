@@ -1,30 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 
-namespace Puzzle03
+namespace Puzzles
 {
-    // https://adventofcode.com/2020/day/3
-    static class Program
+    // Puzzle 1: 203
+    // Puzzle 2: 3316272960
+    public static class Day03
     {
-        // Puzzle 1: 203
-        // Puzzle 2: 3316272960
-        static void Main()
+        public static long Puzzle1()
         {
-            Console.WriteLine($"Puzzle 1: {Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Puzzle2()}");
+            return Count(Input.LoadLines("Puzzles.Input.input03.txt"), 3, 1);
         }
 
-        private static long Puzzle1()
+        public static long Puzzle2()
         {
-            return Count(LoadInput(), 3, 1);
-        }
-
-        private static long Puzzle2()
-        {
-            var grid = LoadInput();
+            var grid = Input.LoadLines("Puzzles.Input.input03.txt");
             return new[]
                 {
                     Tuple.Create(1, 1),
@@ -35,18 +26,6 @@ namespace Puzzle03
                 }
                 .Select(s => Count(grid, s.Item1, s.Item2))
                 .Aggregate(1L, (a, b) => a * b);
-        }
-
-        private static string[] LoadInput()
-        {
-            var assembly = Assembly.GetCallingAssembly();
-            using var stream = assembly.GetManifestResourceStream("Puzzle03.input03.txt");
-            using var reader = new StreamReader(stream);
-            return reader
-                .ReadToEnd()
-                .Split("\n")
-                .Where(l => !string.IsNullOrWhiteSpace(l))
-                .ToArray();
         }
 
         private static int Count(string[] grid, int dX, int dY)

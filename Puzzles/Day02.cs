@@ -1,35 +1,21 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Linq;
 
-namespace Puzzle02
+namespace Puzzles
 {
-    // https://adventofcode.com/2020/day/2
-    static class Program
+    // Puzzle 1: 424
+    // Puzzle 2: 747
+    public static class Day02
     {
-        // Puzzle 1: 424
-        // Puzzle 2: 747
-        static void Main()
+        public static int Puzzle1()
         {
-            Console.WriteLine($"Puzzle 1: {Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Puzzle2()}");
-        }
-
-        private static int Puzzle1()
-        {
-            return LoadInput()
-                .Split('\n')
-                .Where(l => !string.IsNullOrEmpty(l))
+            return Input.LoadLines("Puzzles.Input.input02.txt")
                 .Select(l => new Entry(l))
                 .Count(e => e.IsValid1());
         }
 
-        private static int Puzzle2()
+        public static int Puzzle2()
         {
-            return LoadInput()
-                .Split('\n')
-                .Where(l => !string.IsNullOrEmpty(l))
+            return Input.LoadLines("Puzzles.Input.input02.txt")
                 .Select(l => new Entry(l))
                 .Count(e => e.IsValid2());
         }
@@ -79,14 +65,6 @@ namespace Puzzle02
         public static bool Has(this string text, int index, char c)
         {
             return index < text.Length && text[index] == c;
-        }
-
-        private static string LoadInput()
-        {
-            var assembly = Assembly.GetCallingAssembly();
-            using var stream = assembly.GetManifestResourceStream("Puzzle02.input02.txt");
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
         }
     }
 }
