@@ -2,37 +2,25 @@
 
 namespace Puzzles
 {
-    static class Program
+    public static class Program
     {
-        static void Main()
+        public static void Main()
         {
-            Console.WriteLine($"Day 01");
-            Console.WriteLine($"Puzzle 1: {Day01.Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Day01.Puzzle2()}");
-
-            Console.WriteLine($"Day 02");
-            Console.WriteLine($"Puzzle 1: {Day02.Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Day02.Puzzle2()}");
-
-            Console.WriteLine($"Day 03");
-            Console.WriteLine($"Puzzle 1: {Day03.Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Day03.Puzzle2()}");
-
-            Console.WriteLine($"Day 04");
-            Console.WriteLine($"Puzzle 1: {Day04.Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Day04.Puzzle2()}");
-
-            Console.WriteLine($"Day 05");
-            Console.WriteLine($"Puzzle 1: {Day05.Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Day05.Puzzle2()}");
-
-            Console.WriteLine($"Day 06");
-            Console.WriteLine($"Puzzle 1: {Day06.Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Day06.Puzzle2()}");
-
-            Console.WriteLine($"Day 07");
-            Console.WriteLine($"Puzzle 1: {Day07.Puzzle1()}");
-            Console.WriteLine($"Puzzle 2: {Day07.Puzzle2()}");
+            foreach (var type in new []
+            {
+                typeof(Day01),
+                typeof(Day01),
+                typeof(Day03),
+                typeof(Day04),
+                typeof(Day05),
+                typeof(Day06),
+                typeof(Day07),
+            })
+            {
+                Console.WriteLine(type.Name);
+                Console.WriteLine($"Puzzle 1: {type.GetMethod("Puzzle1")?.Invoke(null, null)}");
+                Console.WriteLine($"Puzzle 2: {type.GetMethod("Puzzle2")?.Invoke(null, null)}");
+            }
         }
     }
 }
