@@ -9,24 +9,23 @@ namespace Puzzles
     {
         public static int Puzzle1()
         {
-            return LoadInstructions().RunInstructions().Item2;
+            return LoadInstructions()
+                .RunInstructions()
+                .Value;
         }
 
         public static int Puzzle2()
         {
            var instructions = LoadInstructions();
 
-            var variationLocations = instructions
+            return instructions
                 .Select((e, i) => (Index: i, Instruction: e))
                 .Where(t => t.Instruction.Op != "acc")
                 .Select(t => (t.Index, (Op: t.Instruction.Op == "jmp" ? "nop" : "jmp", t.Instruction.Val)))
-                .ToArray();
-
-            var variations = variationLocations
                 .Select(t => instructions.Select((e, i) => i != t.Index ? e : t.Item2).ToArray())
-                .ToArray();
-
-            return variations.Select(i => i.RunInstructions()).Where(i => i.Success).Single().Value;
+                .Select(i => i.RunInstructions())
+                .Single(i => i.Success)
+                .Value;
         }
 
         private static (string Op, int Val)[] LoadInstructions()
@@ -43,23 +42,23 @@ namespace Puzzles
             var acc = 0;
             var ip = 0;
 
-            var visitedInstructions = new HashSet<int>();
-            while (!visitedInstructions.Contains(ip) && ip != instructions.Length)
+            var visited = new bool[instructions.Length];
+            while (ip != instructions.Length && !visited[ip])
             {
-                visitedInstructions.Add(ip);
+                visited[ip] = true;
 
-                var instruction = instructions[ip];
+                var (op, val) = instructions[ip];
 
-                if (instruction.Op == "acc")
+                if (op == "acc")
                 {
-                    acc += instruction.Val;
+                    acc += val;
                     ip++;
                 }
-                else if (instruction.Op == "jmp")
+                else if (op == "jmp")
                 {
-                    ip += instruction.Val;
+                    ip += val;
                 }
-                else if (instruction.Op == "nop")
+                else if (op == "nop")
                 {
                     ip++;
                 }
