@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -14,7 +15,7 @@ namespace Puzzles
             return reader.ReadToEnd();
         }
 
-        public static string[] LoadLines(string name)
+        public static IReadOnlyList<string> LoadLines(string name)
         {
             return Load(name).Split('\n').Where(l => !string.IsNullOrEmpty(l)).ToArray();
         }

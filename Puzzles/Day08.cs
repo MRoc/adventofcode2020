@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Puzzles
 {
@@ -27,7 +28,7 @@ namespace Puzzles
                 .Value;
         }
 
-        private static (string Op, int Val)[] LoadInstructions()
+        private static IReadOnlyList<(string Op, int Val)> LoadInstructions()
         {
             return Input
                 .LoadLines("Puzzles.Input.input08.txt")
@@ -36,13 +37,13 @@ namespace Puzzles
                 .ToArray();
         }
 
-        private static (bool Success, int Value) RunInstructions(this (string Op, int Val)[] instructions)
+        private static (bool Success, int Value) RunInstructions(this IReadOnlyList<(string Op, int Val)> instructions)
         {
             var acc = 0;
             var ip = 0;
 
-            var visited = new bool[instructions.Length];
-            while (ip != instructions.Length && !visited[ip])
+            var visited = new bool[instructions.Count];
+            while (ip != instructions.Count && !visited[ip])
             {
                 visited[ip] = true;
 
@@ -63,7 +64,7 @@ namespace Puzzles
                 }
             }
 
-            return (Success: ip == instructions.Length, Value: acc);
+            return (Success: ip == instructions.Count, Value: acc);
         }
     }
 }

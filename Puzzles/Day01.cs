@@ -29,7 +29,7 @@ namespace Puzzles
                 .FirstOrDefault();
         }
 
-        private static IEnumerable<T[]> Permutation2<T>(this IEnumerable<T> seq)
+        private static IEnumerable<IReadOnlyCollection<T>> Permutation2<T>(this IEnumerable<T> seq)
         {
             var arr = seq.ToArray();
             return arr
@@ -37,7 +37,7 @@ namespace Puzzles
                     .Select(e1 => new[] { e0, e1 }));
         }
 
-        private static IEnumerable<T[]> Permutation3<T>(this IEnumerable<T> seq)
+        private static IEnumerable<IReadOnlyCollection<T>> Permutation3<T>(this IEnumerable<T> seq)
         {
             var arr = seq.ToArray();
             return arr
