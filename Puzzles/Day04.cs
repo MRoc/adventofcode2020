@@ -104,30 +104,15 @@ namespace Puzzles
             }
             private bool IsValid_hcl()
             {
-                if (string.IsNullOrEmpty(hcl))
-                {
-                    return false;
-                }
-
-                return Regex.Match(hcl, @"^\#[a-z0-9]{6}\b", RegexOptions.ExplicitCapture).Success;
+                return hcl is {} && Regex.Match(hcl, @"^\#[a-z0-9]{6}\b", RegexOptions.ExplicitCapture).Success;
             }
             private bool IsValid_pid()
             {
-                if (string.IsNullOrEmpty(pid))
-                {
-                    return false;
-                }
-
-                return Regex.Match(pid, @"^[0-9]{9}\b", RegexOptions.ExplicitCapture).Success;
+                return pid is {} && Regex.Match(pid, @"^[0-9]{9}\b", RegexOptions.ExplicitCapture).Success;
             }
             private bool IsValid_ecl()
             {
-                if (string.IsNullOrEmpty(ecl))
-                {
-                    return false;
-                }
-
-                return Regex.Match(ecl, @"^(amb|blu|brn|gry|grn|hzl|oth)\b", RegexOptions.ExplicitCapture).Success;
+                return ecl is {} && Regex.Match(ecl, @"^(amb|blu|brn|gry|grn|hzl|oth)\b", RegexOptions.ExplicitCapture).Success;
             }
 
             private bool IsInRange(string value, int min, int max)
