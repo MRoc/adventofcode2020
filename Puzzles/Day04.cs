@@ -33,7 +33,8 @@ namespace Puzzles
                 foreach (var kv in text
                     .Split(' ')
                     .Where(s => !string.IsNullOrEmpty(s))
-                    .Select(s => s.Split(':')))
+                    .Select(s => s.Split(':'))
+                    .Where(s => s[0] != "cid"))
                 {
                     var key = kv[0];
                     var value = kv[1];
@@ -48,7 +49,6 @@ namespace Puzzles
             public string hcl { get; set; }
             public string ecl { get; set; }
             public string pid { get; set; }
-            public string cid { get; set; }
 
             public bool IsValid1()
             {
@@ -123,30 +123,6 @@ namespace Puzzles
                 }
 
                 return false;
-            }
-
-            public override string ToString()
-            {
-                var sb = new StringBuilder();
-                foreach (var prop in GetType().GetProperties())
-                {
-                    var value = prop.GetValue(this);
-
-                    if (value != null)
-                    {
-                        if (sb.Length > 0)
-                        {
-                            sb.Append(' ');
-                        }
-
-                        sb.Append(prop.Name);
-                        sb.Append(':');
-                        sb.Append(value);
-                    }
-
-                }
-
-                return sb.ToString();
             }
         }
     }
