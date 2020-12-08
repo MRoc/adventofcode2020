@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Puzzles
@@ -18,28 +17,28 @@ namespace Puzzles
            var instructions = LoadInstructions();
 
             var variationLocations = instructions
-                .Select((e, i) => Tuple.Create(i, e))
-                .Where(t => t.Item2.Item1 != "acc")
-                .Select(t => Tuple.Create(t.Item1, Tuple.Create(t.Item2.Item1 == "jmp" ? "nop" : "jmp", t.Item2.Item2)))
+                .Select((e, i) => (Index: i, Instruction: e))
+                .Where(t => t.Instruction.Op != "acc")
+                .Select(t => (t.Index, (Op: t.Instruction.Op == "jmp" ? "nop" : "jmp", t.Instruction.Val)))
                 .ToArray();
 
             var variations = variationLocations
-                .Select(t => instructions.Select((e, i) => i != t.Item1 ? e : t.Item2).ToArray())
+                .Select(t => instructions.Select((e, i) => i != t.Index ? e : t.Item2).ToArray())
                 .ToArray();
 
-            return variations.Select(i => i.RunInstructions()).Where(i => i.Item1).Single().Item2;
+            return variations.Select(i => i.RunInstructions()).Where(i => i.Success).Single().Value;
         }
 
-        private static Tuple<string, int>[] LoadInstructions()
+        private static (string Op, int Val)[] LoadInstructions()
         {
             return Input
                 .LoadLines("Puzzles.Input.input08.txt")
                 .Select(l => l.Split(' '))
-                .Select(l => Tuple.Create(l[0], int.Parse(l[1])))
+                .Select(l => (Op: l[0], Val: int.Parse(l[1])))
                 .ToArray();
         }
 
-        private static Tuple<bool, int> RunInstructions(this Tuple<string, int>[] instructions)
+        private static (bool Success, int Value) RunInstructions(this (string Op, int Val)[] instructions)
         {
             var acc = 0;
             var ip = 0;
@@ -51,22 +50,22 @@ namespace Puzzles
 
                 var instruction = instructions[ip];
 
-                if (instruction.Item1 == "acc")
+                if (instruction.Op == "acc")
                 {
-                    acc += instruction.Item2;
+                    acc += instruction.Val;
                     ip++;
                 }
-                else if (instruction.Item1 == "jmp")
+                else if (instruction.Op == "jmp")
                 {
-                    ip += instruction.Item2;
+                    ip += instruction.Val;
                 }
-                else if (instruction.Item1 == "nop")
+                else if (instruction.Op == "nop")
                 {
                     ip++;
                 }
             }
 
-            return Tuple.Create(ip == instructions.Length, acc);
+            return (Success: ip == instructions.Length, Value: acc);
         }
     }
 }
