@@ -10,7 +10,7 @@ namespace Puzzles
         public static int Puzzle1()
         {
             return Input.LoadLines("Puzzles.Input.input07.txt")
-                .Select(l => new Rule(l))
+                .Select(Rule.Parse)
                 .ToArray()
                 .FindParents("shiny gold")
                 .Distinct()
@@ -26,7 +26,7 @@ namespace Puzzles
         public static int Puzzle2()
         {
             return Input.LoadLines("Puzzles.Input.input07.txt")
-                .Select(l => new Rule(l))
+                .Select(Rule.Parse)
                 .ToArray()
                 .SumChildren("shiny gold") - 1;
         }
@@ -39,9 +39,9 @@ namespace Puzzles
                 .Sum(i => i.Value * rules.SumChildren(i.Key));
         }
 
-        private class Rule
+        record Rule(string Color, IDictionary<string, int> Contains)
         {
-            public Rule(string text)
+            public static Rule Parse(string text)
             {
                 // "dim red bags contain 2 bright gold bags, 5 striped fuchsia bags."
 
@@ -54,21 +54,16 @@ namespace Puzzles
                         .Replace(".", string.Empty))
                     .ToArray();
 
-                Color = parts.First();
-
-                if (parts[1] != "no other")
-                {
-                    Contains = parts
+                return new Rule(
+                    parts.First(),
+                    parts[1] == "no other"
+                        ? new Dictionary<string, int>()
+                        : parts
                         .Skip(1)
                         .ToDictionary(
                             s => s.Substring(2),
-                            s => int.Parse(s.Substring(0, 1)));
-                }
+                            s => int.Parse(s.Substring(0, 1))));
             }
-
-            public string Color { get; }
-
-            public IDictionary<string, int> Contains { get; } = new Dictionary<string, int>();
         }
     }
 }
