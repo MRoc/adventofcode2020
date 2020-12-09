@@ -10,7 +10,7 @@ namespace Puzzles
             foreach (var type in new []
             {
                 typeof(Day01),
-                typeof(Day01),
+                typeof(Day02),
                 typeof(Day03),
                 typeof(Day04),
                 typeof(Day05),
