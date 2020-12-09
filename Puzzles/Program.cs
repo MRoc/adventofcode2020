@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Puzzles
 {
@@ -20,9 +21,25 @@ namespace Puzzles
             })
             {
                 Console.WriteLine(type.Name);
-                Console.WriteLine($"Puzzle 1: {type.GetMethod("Puzzle1")?.Invoke(null, null)}");
-                Console.WriteLine($"Puzzle 2: {type.GetMethod("Puzzle2")?.Invoke(null, null)}");
+
+                foreach (var puzzle in new[]
+                {
+                    "Puzzle1",
+                    "Puzzle2"
+                })
+                {
+                    var (result, duration) = Invoke(type, puzzle);
+                    Console.WriteLine($"{puzzle}: {result} ({(int)duration.TotalMilliseconds}ms)");
+                }
             }
+        }
+
+        private static (object result, TimeSpan duration) Invoke(Type t, string name)
+        {
+            var start = DateTime.UtcNow;
+            var result = t.GetMethod(name)?.Invoke(null, null);
+            var duration = DateTime.UtcNow.Subtract(start);
+            return (result, duration);
         }
     }
 }

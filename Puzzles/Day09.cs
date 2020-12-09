@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Puzzles
@@ -34,12 +35,25 @@ namespace Puzzles
                 .ToArray();
 
             return Enumerable.Range(0, numbers.Length)
-                .Select(i => numbers.Skip(i + 1).ToArray())
-                .SelectMany(r => r
-                    .Select((rr, i) => r.Take(i + 1).ToArray())
-                    .Select(rr => (s: rr.Sum(), v: rr.Min() + rr.Max()))
-                    .TakeWhile(t => t.s <= 133015568))
-                .Single(t => t.s == 133015568 && t.v != 2 * 133015568).v;
+                .Select(i => numbers.Skip(i + 1))
+                .Select(r => r.TakeWhileAggregate((a, b) => a + b, s => s <= 133015568).ToArray())
+                .Where(t => t.Sum() == 133015568 && t.Length > 1)
+                .Select(t => t.Min() + t.Max())
+                .Single();
+        }
+
+        private static IEnumerable<T> TakeWhileAggregate<T>(this IEnumerable<T> seq, Func<T, T, T> aggregate, Predicate<T> predicate)
+        {
+            var agg = default(T);
+            foreach (var item in seq)
+            {
+                agg = aggregate(agg, item);
+
+                if (predicate(agg))
+                {
+                    yield return item;
+                }
+            }
         }
 
         private static IEnumerable<IReadOnlyCollection<T>> Permutation2<T>(this IEnumerable<T> seq)
