@@ -16,6 +16,7 @@ namespace Puzzles
                 typeof(Day06),
                 typeof(Day07),
                 typeof(Day08),
+                typeof(Day09),
             })
             {
                 Console.WriteLine(type.Name);
