@@ -34,13 +34,12 @@ namespace Puzzles
                 .ToArray();
 
             return Enumerable.Range(0, numbers.Length)
-                .SelectMany(i => Enumerable.Range(i, numbers.Length - i).Select(j => (i, j)))
-                .Where(t => t.j - t.i > 0)
-                .AsParallel()
-                .Select(t => numbers.Skip(t.i).Take(t.j - t.i))
-                .Where(r => r.Sum() == 133015568)
-                .Select(r => r.Min() + r.Max())
-                .FirstOrDefault();
+                .Select(i => numbers.Skip(i + 1).ToArray())
+                .SelectMany(r => r
+                    .Select((rr, i) => r.Take(i + 1).ToArray())
+                    .Select(rr => (s: rr.Sum(), v: rr.Min() + rr.Max()))
+                    .TakeWhile(t => t.s <= 133015568))
+                .Single(t => t.s == 133015568 && t.v != 2 * 133015568).v;
         }
 
         private static IEnumerable<IReadOnlyCollection<T>> Permutation2<T>(this IEnumerable<T> seq)
