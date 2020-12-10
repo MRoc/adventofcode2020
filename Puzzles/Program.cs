@@ -17,6 +17,7 @@ namespace Puzzles
                 typeof(Day07),
                 typeof(Day08),
                 typeof(Day09),
+                typeof(Day10),
             })
             {
                 Console.WriteLine(type.Name);
@@ -29,7 +30,7 @@ namespace Puzzles
                 {
                     var (result, duration) = Invoke(type, puzzle);
                     Console.WriteLine($"{puzzle}: {result} ({(int)duration.TotalMilliseconds}ms)");
-                }
+                }   
             }
         }
 
