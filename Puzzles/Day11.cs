@@ -113,91 +113,43 @@ namespace Puzzles
 
         private static IEnumerable<char> AdjacentSeats2(this char[,] seats, int row, int col)
         {
+            foreach (var direction in new[]
+            {
+                (0, -1),
+                (-1, -1),
+                (-1, 0),
+                (-1, 1),
+                (0, 1),
+                (1, 1),
+                (1, 0),
+                (1, -1)
+            })
+            {
+                var c = AdjacentDirection(seats, row, col, direction.Item1, direction.Item2);
+                if (c != default(char))
+                {
+                    yield return c;
+                }
+            }
+        }
+
+        private static char AdjacentDirection(this char[,] seats, int row, int col, int dR, int dC)
+        {
             var height = seats.GetLength(0);
             var width = seats.GetLength(1);
 
-            var c = default(int);
-            var r = default(int);
+            var r = row + dR;
+            var c = col + dC;
 
-            // Left
-            for (r = row, c = col - 1; c >= 0; --c)
+            for (; r >= 0 && r < height && c >= 0 && c < width; r += dR, c += dC)
             {
                 if (seats[r, c] != '.')
                 {
-                    yield return seats[r, c];
-                    break;
+                    return seats[r, c];
                 }
             }
 
-            // Left top
-            for (r = row - 1, c = col - 1; r >= 0 && c >= 0; --r, --c)
-            {
-                if (seats[r, c] != '.')
-                {
-                    yield return seats[r, c];
-                    break;
-                }
-            }
-
-            // Top
-            for (r = row - 1, c = col; r >= 0; --r)
-            {
-                if (seats[r, c] != '.')
-                {
-                    yield return seats[r, c];
-                    break;
-                }
-            }
-
-            // Top right
-            for (r = row - 1, c = col + 1; r >= 0 && c < width; --r, ++c)
-            {
-                if (seats[r, c] != '.')
-                {
-                    yield return seats[r, c];
-                    break;
-                }
-            }
-
-            // Right
-            for (r = row, c = col + 1; c < width; ++c)
-            {
-                if (seats[r, c] != '.')
-                {
-                    yield return seats[r, c];
-                    break;
-                }
-            }
-
-            // Right bottom
-            for (r = row + 1, c = col + 1; r < height && c < width; ++r, ++c)
-            {
-                if (seats[r, c] != '.')
-                {
-                    yield return seats[r, c];
-                    break;
-                }
-            }
-
-            // Bottom
-            for (r = row + 1, c = col; r < height; ++r)
-            {
-                if (seats[r, c] != '.')
-                {
-                    yield return seats[r, c];
-                    break;
-                }
-            }
-
-            // Right left
-            for (r = row + 1, c = col - 1; r < height && c >= 0; ++r, --c)
-            {
-                if (seats[r, c] != '.')
-                {
-                    yield return seats[r, c];
-                    break;
-                }
-            }
+            return default(char);
         }
 
         private static T SeatAtPosition<T>(this T[,] seats, int row, int col)
