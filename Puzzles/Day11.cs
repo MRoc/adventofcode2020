@@ -13,7 +13,7 @@ namespace Puzzles
             return Input
                 .LoadLines("Puzzles.Input.input11.txt")
                 .CreateSeats()
-                .FindStableState(NextState)
+                .FindStableState(AdjacentSeats1, 4)
                 .Cast<char>()
                 .Count(c => c == '#');
         }
@@ -23,7 +23,7 @@ namespace Puzzles
             return Input
                 .LoadLines("Puzzles.Input.input11.txt")
                 .CreateSeats()
-                .FindStableState(NextState2)
+                .FindStableState(AdjacentSeats2, 5)
                 .Cast<char>()
                 .Count(c => c == '#');
         }
@@ -41,7 +41,10 @@ namespace Puzzles
             return result;
         }
 
-        private static char[,] FindStableState(this char[,] grid, Func<char[,], char[,]> transform)
+        private static char[,] FindStableState(
+            this char[,] grid,
+            Func<char[,], int, int, IEnumerable<char>> adjacentSeats,
+            int numSeatsToFree)
         {
             var next = grid;
             var prev = default(char[,]);
@@ -49,13 +52,16 @@ namespace Puzzles
             while (prev is null || !prev.AreEqual(next))
             {
                 prev = next;
-                next = transform(next);
+                next = NextState(next, adjacentSeats, numSeatsToFree);
             }
 
             return next;
         }
 
-        private static char[,] NextState(this char[,] grid)
+        private static char[,] NextState(
+            this char[,] grid,
+            Func<char[,], int, int, IEnumerable<char>> adjacentSeats,
+            int numSeatsToFree)
         {
             var nextState = new char[grid.GetLength(0), grid.GetLength(1)];
 
@@ -63,39 +69,29 @@ namespace Puzzles
             {
                 foreach (var j in Enumerable.Range(0, grid.GetLength(1)))
                 {
-                    nextState[i, j] = grid.NextState(i, j);
+                    nextState[i, j] = grid.NextState(i, j, adjacentSeats, numSeatsToFree);
                 }
             }
 
             return nextState;
         }
 
-        private static char[,] NextState2(this char[,] grid)
-        {
-            var nextState = new char[grid.GetLength(0), grid.GetLength(1)];
-
-            foreach (var i in Enumerable.Range(0, grid.GetLength(0)))
-            {
-                foreach (var j in Enumerable.Range(0, grid.GetLength(1)))
-                {
-                    nextState[i, j] = grid.NextState2(i, j);
-                }
-            }
-
-            return nextState;
-        }
-
-        private static char NextState(this char[,] grid, int i, int j)
+        private static char NextState(
+            this char[,] grid,
+            int i,
+            int j,
+            Func<char[,], int, int, IEnumerable<char>> adjacentSeats,
+            int numSeatsToFree)
         {
             var seat = grid.SeatAtPosition(i, j);
-            var adjacentAllocatedSeats = grid.AdjacentSeats(i, j).Count(c => c == '#');
+            var adjacentAllocatedSeats = adjacentSeats(grid, i, j).Count(c => c == '#');
 
             if (seat == 'L' && adjacentAllocatedSeats == 0)
             {
                 return '#';
             }
 
-            if (seat == '#' && adjacentAllocatedSeats >= 4)
+            if (seat == '#' && adjacentAllocatedSeats >= numSeatsToFree)
             {
                 return 'L';
             }
@@ -103,25 +99,7 @@ namespace Puzzles
             return seat;
         }
 
-        private static char NextState2(this char[,] grid, int i, int j)
-        {
-            var seat = grid.SeatAtPosition(i, j);
-            var adjacentAllocatedSeats = grid.AdjacentSeats2(i, j).Count(c => c == '#');
-
-            if (seat == 'L' && adjacentAllocatedSeats == 0)
-            {
-                return '#';
-            }
-
-            if (seat == '#' && adjacentAllocatedSeats >= 5)
-            {
-                return 'L';
-            }
-
-            return seat;
-        }
-
-        private static IEnumerable<char> AdjacentSeats(this char[, ] seats, int row, int col)
+        private static IEnumerable<char> AdjacentSeats1(this char[, ] seats, int row, int col)
         {
             yield return seats.SeatAtPosition(row - 1, col - 1);
             yield return seats.SeatAtPosition(row - 1, col);
