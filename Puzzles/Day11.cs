@@ -43,7 +43,7 @@ namespace Puzzles
 
         private static char[,] FindStableState(
             this char[,] grid,
-            Func<char[,], int, int, IEnumerable<char>> adjacentSeats,
+            Func<char[,], int, int, int> adjacentSeats,
             int numSeatsToFree)
         {
             var next = grid;
@@ -60,7 +60,7 @@ namespace Puzzles
 
         private static char[,] NextState(
             this char[,] grid,
-            Func<char[,], int, int, IEnumerable<char>> adjacentSeats,
+            Func<char[,], int, int, int> adjacentSeats,
             int numSeatsToFree)
         {
             var nextState = new char[grid.GetLength(0), grid.GetLength(1)];
@@ -80,11 +80,11 @@ namespace Puzzles
             this char[,] grid,
             int i,
             int j,
-            Func<char[,], int, int, IEnumerable<char>> adjacentSeats,
+            Func<char[,], int, int, int> adjacentSeats,
             int numSeatsToFree)
         {
             var seat = grid[i, j];
-            var adjacentAllocatedSeats = adjacentSeats(grid, i, j).Count(c => c == '#');
+            var adjacentAllocatedSeats = adjacentSeats(grid, i, j);
 
             if (seat == 'L' && adjacentAllocatedSeats == 0)
             {
@@ -99,52 +99,58 @@ namespace Puzzles
             return seat;
         }
 
-        private static IEnumerable<char> AdjacentSeats1(this char[, ] seats, int row, int col)
+        private static int AdjacentSeats1(this char[, ] seats, int row, int col)
         {
             var height = seats.GetLength(0);
             var width = seats.GetLength(1);
 
-            foreach (var direction in _directions)
+            var count = 0;
+
+            foreach (var direction in Directions)
             {
                 var r = row + direction.Item1;
                 var c = col + direction.Item2;
 
-                if (r >= 0 && r < height && c >= 0 && c < width)
+                if (r >= 0 && r < height && c >= 0 && c < width && seats[r, c] == '#')
                 {
-                    yield return seats[r, c];
+                    ++count;
                 }
             }
+
+            return count;
         }
 
-        private static IEnumerable<char> AdjacentSeats2(this char[,] seats, int row, int col)
-        {
-            foreach (var direction in _directions)
-            {
-                var c = AdjacentDirection(seats, row, col, direction.Item1, direction.Item2);
-                if (c != default(char))
-                {
-                    yield return c;
-                }
-            }
-        }
-
-        private static char AdjacentDirection(this char[,] seats, int row, int col, int dR, int dC)
+        private static int AdjacentSeats2(this char[,] seats, int row, int col)
         {
             var height = seats.GetLength(0);
             var width = seats.GetLength(1);
 
-            var r = row + dR;
-            var c = col + dC;
+            var count = 0;
 
-            for (; r >= 0 && r < height && c >= 0 && c < width; r += dR, c += dC)
+            foreach (var direction in Directions)
             {
-                if (seats[r, c] != '.')
+                var dR = direction.Item1;
+                var dC = direction.Item2;
+
+                var r = row + dR;
+                var c = col + dC;
+
+                for (; r >= 0 && r < height && c >= 0 && c < width; r += dR, c += dC)
                 {
-                    return seats[r, c];
+                    var seat = seats[r, c];
+
+                    if (seat != '.')
+                    {
+                        if (seat == '#')
+                        {
+                            ++count;
+                        }
+                        break;
+                    }
                 }
             }
 
-            return default;
+            return count;
         }
 
         private static bool AreEqual(this char[,] x, char[,] y)
@@ -152,7 +158,7 @@ namespace Puzzles
             return x.Cast<char>().SequenceEqual(y.Cast<char>());
         }
 
-        private static readonly IReadOnlyCollection<(int, int)> _directions = new[]
+        private static readonly IReadOnlyCollection<(int, int)> Directions = new[]
         {
             (0, -1),
             (-1, -1),
