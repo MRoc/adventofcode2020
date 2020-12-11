@@ -83,7 +83,7 @@ namespace Puzzles
             Func<char[,], int, int, IEnumerable<char>> adjacentSeats,
             int numSeatsToFree)
         {
-            var seat = grid.SeatAtPosition(i, j);
+            var seat = grid[i, j];
             var adjacentAllocatedSeats = adjacentSeats(grid, i, j).Count(c => c == '#');
 
             if (seat == 'L' && adjacentAllocatedSeats == 0)
@@ -101,29 +101,24 @@ namespace Puzzles
 
         private static IEnumerable<char> AdjacentSeats1(this char[, ] seats, int row, int col)
         {
-            yield return seats.SeatAtPosition(row - 1, col - 1);
-            yield return seats.SeatAtPosition(row - 1, col);
-            yield return seats.SeatAtPosition(row - 1, col + 1);
-            yield return seats.SeatAtPosition(row, col - 1);
-            yield return seats.SeatAtPosition(row, col + 1);
-            yield return seats.SeatAtPosition(row + 1, col - 1);
-            yield return seats.SeatAtPosition(row + 1, col);
-            yield return seats.SeatAtPosition(row + 1, col + 1);
+            var height = seats.GetLength(0);
+            var width = seats.GetLength(1);
+
+            foreach (var direction in _directions)
+            {
+                var r = row + direction.Item1;
+                var c = col + direction.Item2;
+
+                if (r >= 0 && r < height && c >= 0 && c < width)
+                {
+                    yield return seats[r, c];
+                }
+            }
         }
 
         private static IEnumerable<char> AdjacentSeats2(this char[,] seats, int row, int col)
         {
-            foreach (var direction in new[]
-            {
-                (0, -1),
-                (-1, -1),
-                (-1, 0),
-                (-1, 1),
-                (0, 1),
-                (1, 1),
-                (1, 0),
-                (1, -1)
-            })
+            foreach (var direction in _directions)
             {
                 var c = AdjacentDirection(seats, row, col, direction.Item1, direction.Item2);
                 if (c != default(char))
@@ -149,19 +144,24 @@ namespace Puzzles
                 }
             }
 
-            return default(char);
-        }
-
-        private static T SeatAtPosition<T>(this T[,] seats, int row, int col)
-        {
-            return row >= 0 && row < seats.GetLength(0) && col >= 0 && col < seats.GetLength(1)
-                ? seats[row, col]
-                : default;
+            return default;
         }
 
         private static bool AreEqual(this char[,] x, char[,] y)
         {
             return x.Cast<char>().SequenceEqual(y.Cast<char>());
         }
+
+        private static readonly IReadOnlyCollection<(int, int)> _directions = new[]
+        {
+            (0, -1),
+            (-1, -1),
+            (-1, 0),
+            (-1, 1),
+            (0, 1),
+            (1, 1),
+            (1, 0),
+            (1, -1)
+        };
     }
 }
