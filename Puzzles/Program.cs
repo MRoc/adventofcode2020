@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 
 namespace Puzzles
 {
@@ -6,20 +8,10 @@ namespace Puzzles
     {
         public static void Main()
         {
-            foreach (var type in new []
-            {
-                typeof(Day01),
-                typeof(Day02),
-                typeof(Day03),
-                typeof(Day04),
-                typeof(Day05),
-                typeof(Day06),
-                typeof(Day07),
-                typeof(Day08),
-                typeof(Day09),
-                typeof(Day10),
-                typeof(Day11),
-            })
+            foreach (var type in Assembly
+                .GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => t.Name.StartsWith("Day")))
             {
                 Console.WriteLine(type.Name);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Puzzles
@@ -31,12 +32,12 @@ namespace Puzzles
         private static char[,] CreateSeats(this IReadOnlyList<string> input)
         {
             var result = new char[input.Count, input[0].Length];
-            foreach (var i in Enumerable.Range(0, input.Count))
+
+            foreach (var (i, j) in Enumerable.Range(0, input.Count)
+                .SelectMany(ii => Enumerable.Range(0, input[ii].Length)
+                    .Select(jj => (i: ii, j: jj))))
             {
-                foreach (var j in Enumerable.Range(0, input[i].Length))
-                {
-                    result[i, j] = input[i][j];
-                }
+                result[i, j] = input[i][j];
             }
             return result;
         }
@@ -63,14 +64,16 @@ namespace Puzzles
             Func<char[,], int, int, int> adjacentSeats,
             int numSeatsToFree)
         {
-            var nextState = new char[grid.GetLength(0), grid.GetLength(1)];
+            var height = grid.GetLength(0);
+            var width = grid.GetLength(1);
 
-            foreach (var i in Enumerable.Range(0, grid.GetLength(0)))
+            var nextState = new char[height, width];
+
+            foreach (var (i, j) in Enumerable.Range(0, height)
+                .SelectMany(ii => Enumerable.Range(0, width)
+                    .Select(jj => (i: ii, j: jj))))
             {
-                foreach (var j in Enumerable.Range(0, grid.GetLength(1)))
-                {
-                    nextState[i, j] = grid.NextState(i, j, adjacentSeats, numSeatsToFree);
-                }
+                nextState[i, j] = grid.NextState(i, j, adjacentSeats, numSeatsToFree);
             }
 
             return nextState;
@@ -99,7 +102,7 @@ namespace Puzzles
             return seat;
         }
 
-        private static int AdjacentSeats1(this char[, ] seats, int row, int col)
+        private static int AdjacentSeats1(this char[,] seats, int row, int col)
         {
             var height = seats.GetLength(0);
             var width = seats.GetLength(1);
@@ -145,12 +148,32 @@ namespace Puzzles
                         {
                             ++count;
                         }
+
                         break;
                     }
                 }
             }
 
             return count;
+        }
+
+        private static int AdjacentSeats1_FunctionalAlternative_Slower(this char[,] seats, int row, int col)
+        {
+            return Directions
+                .Select(d => (r: row + d.Item1, c: col + d.Item2))
+                .Where(t => t.r >= 0 && t.r < seats.GetLength(0) && t.c >= 0 && t.c < seats.GetLength(1))
+                .Count(t => seats[t.r, t.c] == '#');
+        }
+
+        private static int AdjacentSeats2_FunctionalAlternative_9x_Slower(this char[,] seats, int row, int col)
+        {
+            return Directions
+                .Select(d => Enumerable.Range(1, Math.Max(seats.GetLength(0), seats.GetLength(1)))
+                    .Select(i => (r: row + i * d.Item1, c: col + i * d.Item2))
+                    .TakeWhile(t => t.r >= 0 && t.r < seats.GetLength(0) && t.c >= 0 && t.c < seats.GetLength(1))
+                    .Select(t => seats[t.r, t.c])
+                    .FirstOrDefault(c => c != '.'))
+                .Count(c => c == '#');
         }
 
         private static bool AreEqual(this char[,] x, char[,] y)
