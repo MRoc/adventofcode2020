@@ -11,7 +11,7 @@ namespace Puzzles
         {
             var instructions = Input.LoadLines("Puzzles.Input.input12.txt");
 
-            var state = new State1(0L, 0L, 0L);
+            var state = new State1(0L, new Point(0L, 0L));
 
             foreach (var instruction in instructions
                .Select(i => (code: i[0], value: long.Parse(i.Substring(1)))))
@@ -19,50 +19,56 @@ namespace Puzzles
                 state = state.NextState(instruction);
             }
 
-            return state.ManhattanDistance();
+            return state.Position.ManhattanDistance();
         }
 
-        public record State1(long Direction, long X, long Y)
+        public class State1
         {
+            public State1(long direction, Point position)
+            {
+                Direction = direction;
+                Position = position;
+            }
+
+            public long Direction { get; }
+
+            public Point Position { get; }
+
             public State1 NextState((char code, long value) instruction)
             {
                 var moves = new[]
                 {
-                    (code: 'E', x: 1, y: 0),
-                    (code: 'S', x: 0, y: -1),
-                    (code: 'W', x: -1, y: 0),
-                    (code: 'N', x: 0, y: 1),
+                    (code: 'E', direction: new Point(1, 0)),
+                    (code: 'S', direction: new Point(0, -1)),
+                    (code: 'W', direction: new Point(-1, 0)),
+                    (code: 'N', direction: new Point(0, 1))
                 };
 
                 var move = moves.FirstOrDefault(d => d.code == instruction.code);
 
                 if (move.code != 0)
                 {
-                    return new State1(Direction, X + move.x * instruction.value, Y + move.y * instruction.value);
+                    return new State1(Direction,
+                         Position + move.direction * instruction.value);
                 }
 
                 if (instruction.code == 'L')
                 {
-                    return new State1(Mod(Direction - instruction.value / 90L, 4), X, Y);
+                    return new State1(Mod(Direction - instruction.value / 90L, 4), Position);
                 }
 
                 if (instruction.code == 'R')
                 {
-                    return new State1(Mod(Direction + instruction.value / 90L, 4), X, Y);
+                    return new State1(Mod(Direction + instruction.value / 90L, 4), Position);
                 }
 
                 if (instruction.code == 'F')
                 {
                     move = moves[Direction];
-                    return new State1(Direction, X + move.x * instruction.value, Y + move.y * instruction.value);
+                    return new State1(Direction, Position + move.direction * instruction.value);
                 }
                 
                 throw new NotSupportedException();
-            }
-
-            public long ManhattanDistance()
-            {
-                return Math.Abs(X) + Math.Abs(Y);
             }
         }
 
@@ -165,6 +171,64 @@ namespace Puzzles
             }
 
             return (x, y);
+        }
+
+        public class Point
+        {
+            public Point(long x, long y)
+            {
+                X = x;
+                Y = y;
+            }
+
+            public long X { get; }
+
+            public long Y { get; }
+
+            public static Point operator +(Point p0, Point p1)
+            {
+                return new Point(p0.X + p1.X, p0.Y + p1.Y);
+            }
+
+            public static Point operator -(Point p0, Point p1)
+            {
+                return new Point(p0.X - p1.X, p0.Y - p1.Y);
+            }
+
+            public static Point operator /(Point p0, Point p1)
+            {
+                return new Point(p0.X / p1.X, p0.Y / p1.Y);
+            }
+
+            public static Point operator *(Point p0, Point p1)
+            {
+                return new Point(p0.X * p1.X, p0.Y * p1.Y);
+            }
+
+            public static Point operator +(Point p0, long value)
+            {
+                return new Point(p0.X + value, p0.Y + value);
+            }
+
+            public static Point operator -(Point p0, long value)
+            {
+                return new Point(p0.X - value, p0.Y - value);
+            }
+
+            public static Point operator /(Point p0, long value)
+            {
+                return new Point(p0.X / value, p0.Y / value);
+            }
+
+            public static Point operator *(Point p0, long value)
+            {
+                return new Point(p0.X * value, p0.Y * value);
+            }
+
+            public long ManhattanDistance()
+            {
+                return Math.Abs(X) + Math.Abs(Y);
+            }
         }
     }
 }
