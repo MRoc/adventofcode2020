@@ -16,26 +16,26 @@ namespace Puzzles
             {'N', new Point(0, 1)}
         };
 
-        public static long Puzzle1()
+        public static int Puzzle1()
         {
             return Input
                 .LoadLines("Puzzles.Input.input12.txt")
-                .Select(i => (code: i[0], value: int.Parse(i.Substring(1))))
+                .Select(i => (code: i[0], value: int.Parse(i[1..])))
                 .Process(
-                    new State1(0, new Point(0L, 0L)),
+                    new State1(0, new Point(0, 0)),
                     (i, p) => p.NextState(i.code, i.value))
                 .Last()
                 .Position
                 .ManhattanDistance();
         }
 
-        public static long Puzzle2()
+        public static int Puzzle2()
         {
             return Input
                 .LoadLines("Puzzles.Input.input12.txt")
-                .Select(i => (code: i[0], value: int.Parse(i.Substring(1))))
+                .Select(i => (code: i[0], value: int.Parse(i[1..])))
                 .Process(
-                    new State2(new Point(0L, 0L), new Point(10L, 1L)),
+                    new State2(new Point(0, 0), new Point(10, 1)),
                     (i, p) => p.NextState(i.code, i.value))
                 .Last()
                 .Position
@@ -49,8 +49,6 @@ namespace Puzzles
 
         private static IEnumerable<T2> Process<T1, T2>(this IEnumerable<T1> seq, T2 seed, Func<T1, T2, T2> projection)
         {
-            yield return seed;
-
             foreach (var item in seq)
             {
                 seed = projection(item, seed);
@@ -104,7 +102,7 @@ namespace Puzzles
 
             public Point Waypoint { get; }
 
-            public State2 NextState(char code, long value)
+            public State2 NextState(char code, int value)
             {
                 switch (code)
                 {
@@ -114,9 +112,9 @@ namespace Puzzles
                     case 'N':
                         return new State2(Position, Waypoint + Directions[code] * value);
                     case 'L':
-                        return new State2(Position, Waypoint.RotateL(value / 90L));
+                        return new State2(Position, Waypoint.Rotate(value));
                     case 'R':
-                        return new State2(Position, Waypoint.RotateR(value / 90L));
+                        return new State2(Position, Waypoint.Rotate(-value));
                     case 'F':
                         return new State2(Position + Waypoint * value, Waypoint);
                     default:
@@ -127,61 +125,42 @@ namespace Puzzles
 
         public class Point
         {
-            public Point(long x, long y)
+            public Point(int x, int y)
             {
                 X = x;
                 Y = y;
             }
 
-            public long X { get; }
+            public int X { get; }
 
-            public long Y { get; }
+            public int Y { get; }
 
             public static Point operator +(Point p0, Point p1)
             {
                 return new Point(p0.X + p1.X, p0.Y + p1.Y);
             }
 
-            public static Point operator *(Point p0, long value)
+            public static Point operator *(Point p0, int value)
             {
                 return new Point(p0.X * value, p0.Y * value);
             }
 
-            public Point RotateL(long times)
+            public static Point operator *(Point p0, Point p1)
             {
-                var x = X;
-                var y = Y;
+                return new Point(p0.X * p1.X - p0.Y * p1.Y, p0.X * p1.Y + p0.Y * p1.X);
+            }
+            
+            public Point Rotate(int degrees)
+            {
+                var sin = new [] { 0, 1, 0, -1 };
+                var cos = new [] { 1, 0, -1, 0 };
 
-                foreach (var _ in Enumerable.Range(0, (int) times))
-                {
-                    var nX = -y;
-                    var nY = x;
+                var index = Mod(degrees / 90, 4);
 
-                    x = nX;
-                    y = nY;
-                }
-
-                return new Point(x, y);
+                return this * new Point(cos[index], sin[index]);
             }
 
-            public Point RotateR(long times)
-            {
-                var x = X;
-                var y = Y;
-
-                foreach (var _ in Enumerable.Range(0, (int) times))
-                {
-                    var nX = y;
-                    var nY = -x;
-
-                    x = nX;
-                    y = nY;
-                }
-
-                return new Point(x, y);
-            }
-
-            public long ManhattanDistance()
+            public int ManhattanDistance()
             {
                 return Math.Abs(X) + Math.Abs(Y);
             }
