@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Puzzles
 {
@@ -35,48 +36,26 @@ namespace Puzzles
 
         private record State1(int Direction, Point Position)
         {
-            public State1 NextState(char code, int value)
+            public State1 NextState(char code, int value) => code switch
             {
-                switch (code)
-                {
-                    case 'E':
-                    case 'W':
-                    case 'S':
-                    case 'N':
-                        return this with { Position = Position + Directions[code] * value };
-                    case 'L':
-                        return this with { Direction = Mod(Direction - value / 90, 4) };
-                    case 'R':
-                        return this with { Direction = Mod(Direction + value / 90, 4) };
-                    case 'F':
-                        return this with { Position = Position + Directions.ElementAt(Direction).Value * value };
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
+                'E' or 'W' or 'S' or 'N' => this with { Position = Position + Directions[code] * value },
+                'L' => this with { Direction = Mod(Direction - value / 90, 4) },
+                'R' => this with { Direction = Mod(Direction + value / 90, 4) },
+                'F' => this with { Position = Position + Directions.ElementAt(Direction).Value * value },
+                _ => throw new NotSupportedException()
+            };
         }
 
         private record State2(Point Position, Point Waypoint)
         {
-            public State2 NextState(char code, int value)
+            public State2 NextState(char code, int value) => code switch
             {
-                switch (code)
-                {
-                    case 'E':
-                    case 'W':
-                    case 'S':
-                    case 'N':
-                        return this with { Waypoint = Waypoint + Directions[code] * value };
-                    case 'L':
-                        return this with { Waypoint = Waypoint.Rotate(value) };
-                    case 'R':
-                        return this with { Waypoint = Waypoint.Rotate(-value) };
-                    case 'F':
-                        return this with { Position = Position + Waypoint * value };
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
+                'E' or 'W' or 'S' or 'N' => this with { Waypoint = Waypoint + Directions[code] * value },
+                'L' => this with { Waypoint = Waypoint.Rotate(value) },
+                'R' => this with { Waypoint = Waypoint.Rotate(-value) },
+                'F' => this with { Position = Position + Waypoint * value },
+                _ => throw new NotSupportedException()
+            };
         }
 
         private record Point(int X, int Y)
