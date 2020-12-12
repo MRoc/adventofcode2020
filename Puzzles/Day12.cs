@@ -11,49 +11,59 @@ namespace Puzzles
         {
             var instructions = Input.LoadLines("Puzzles.Input.input12.txt");
 
+            var state = new State(0L, 0L, 0L);
 
-            var facing = 0L;
-            var x = 0L;
-            var y = 0L;
-
-            var moves = new[]
+            foreach (var instruction in instructions
+               .Select(i => (code: i[0], value: long.Parse(i.Substring(1)))))
             {
-                (code: 'E', x: 1, y: 0),
-                (code: 'S', x: 0, y: -1),
-                (code: 'W', x: -1, y: 0),
-                (code: 'N', x: 0, y: 1),
-            };
-
-             foreach (var instruction in instructions
-                .Select(i => (code: i[0], value: long.Parse(i.Substring(1)))))
-            {
-                var move = moves.FirstOrDefault(d => d.code == instruction.code);
-                if (move.code != 0)
-                {
-                    x += move.x * instruction.value;
-                    y += move.y * instruction.value;
-                }
-                else if (instruction.code == 'L')
-                {
-                    facing = Mod(facing - instruction.value / 90L, 4);
-                }
-                else if (instruction.code == 'R')
-                {
-                    facing = Mod(facing + instruction.value / 90L, 4);
-                }
-                else if (instruction.code == 'F')
-                {
-                    move = moves[facing];
-                    x += move.x * instruction.value;
-                    y += move.y * instruction.value;
-                }
-                else
-                {
-                    throw new NotSupportedException();
-                }
+                state = state.NextState(instruction);
             }
 
-            return Math.Abs(x) + Math.Abs(y);
+            return state.ManhattanDistance();
+        }
+
+        public record State(long Direction, long X, long Y)
+        {
+            public State NextState((char code, long value) instruction)
+            {
+                var moves = new[]
+                {
+                    (code: 'E', x: 1, y: 0),
+                    (code: 'S', x: 0, y: -1),
+                    (code: 'W', x: -1, y: 0),
+                    (code: 'N', x: 0, y: 1),
+                };
+
+                var move = moves.FirstOrDefault(d => d.code == instruction.code);
+
+                if (move.code != 0)
+                {
+                    return new State(Direction, X + move.x * instruction.value, Y + move.y * instruction.value);
+                }
+
+                if (instruction.code == 'L')
+                {
+                    return new State(Mod(Direction - instruction.value / 90L, 4), X, Y);
+                }
+
+                if (instruction.code == 'R')
+                {
+                    return new State(Mod(Direction + instruction.value / 90L, 4), X, Y);
+                }
+
+                if (instruction.code == 'F')
+                {
+                    move = moves[Direction];
+                    return new State(Direction, X + move.x * instruction.value, Y + move.y * instruction.value);
+                }
+                
+                throw new NotSupportedException();
+            }
+
+            public long ManhattanDistance()
+            {
+                return Math.Abs(X) + Math.Abs(Y);
+            }
         }
 
         public static long Puzzle2()
