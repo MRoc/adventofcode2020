@@ -44,12 +44,10 @@ namespace Puzzles
                     (code: 'N', direction: new Point(0, 1))
                 };
 
-                var move = moves.FirstOrDefault(d => d.code == instruction.code);
-
-                if (move.code != 0)
+                var (code, direction) = moves.FirstOrDefault(d => d.code == instruction.code);
+                if (code != 0)
                 {
-                    return new State1(Direction,
-                         Position + move.direction * instruction.value);
+                    return new State1(Direction, Position + direction * instruction.value);
                 }
 
                 if (instruction.code == 'L')
@@ -64,10 +62,9 @@ namespace Puzzles
 
                 if (instruction.code == 'F')
                 {
-                    move = moves[Direction];
-                    return new State1(Direction, Position + move.direction * instruction.value);
+                    return new State1(Direction, Position + moves[Direction].direction * instruction.value);
                 }
-                
+
                 throw new NotSupportedException();
             }
         }
@@ -76,7 +73,7 @@ namespace Puzzles
         {
             var instructions = Input.LoadLines("Puzzles.Input.input12.txt");
 
-            var state = new State2(0L, 0L, 10L, 1L);
+            var state = new State2(new Point(0L, 0L), new Point(10L, 1L));
 
             foreach (var instruction in instructions
                 .Select(i => (code: i[0], value: long.Parse(i.Substring(1)))))
@@ -84,93 +81,59 @@ namespace Puzzles
                 state = state.NextState(instruction);
             }
 
-            return state.ManhattanDistance();
+            return state.Position.ManhattanDistance();
         }
 
-        public record State2(long X, long Y, long WaypointX, long WaypointY)
+        public class State2
         {
+            public State2(Point position, Point waypoint)
+            {
+                Position = position;
+                Waypoint = waypoint;
+            }
+
+            public Point Position { get; }
+
+            public Point Waypoint { get; }
+
             public State2 NextState((char code, long value) instruction)
             {
                 var moves = new[]
                 {
-                    (code: 'E', x: 1, y: 0),
-                    (code: 'S', x: 0, y: -1),
-                    (code: 'W', x: -1, y: 0),
-                    (code: 'N', x: 0, y: 1),
+                    (code: 'E', direction: new Point(1, 0)),
+                    (code: 'S', direction: new Point(0, -1)),
+                    (code: 'W', direction: new Point(-1, 0)),
+                    (code: 'N', direction: new Point(0, 1))
                 };
 
-                var move = moves.FirstOrDefault(d => d.code == instruction.code);
-
-                if (move.code != 0)
+                var (code, direction) = moves.FirstOrDefault(d => d.code == instruction.code);
+                if (code != 0)
                 {
-                    return new State2(
-                        X,
-                        Y,
-                        WaypointX + move.x * instruction.value,
-                        WaypointY + move.y * instruction.value);
+                    return new State2(Position, Waypoint + direction * instruction.value);
                 }
 
                 if (instruction.code == 'L')
                 {
-                    var (wx, wy) = RotateL(WaypointX, WaypointY, instruction.value / 90L);
-                    return new State2(X, Y, wx, wy);
+                    return new State2(Position, Waypoint.RotateL(instruction.value / 90L));
                 }
 
                 if (instruction.code == 'R')
                 {
-                    var (wx, wy) = RotateR(WaypointX, WaypointY, instruction.value / 90L);
-                    return new State2(X, Y, wx, wy);
+                    return new State2(Position, Waypoint.RotateR(instruction.value / 90L));
                 }
 
                 if (instruction.code == 'F')
                 {
-                    return new State2(
-                        X + WaypointX * instruction.value,
-                        Y + WaypointY * instruction.value,
-                        WaypointX,
-                        WaypointY);
+                    return new State2(Position + Waypoint * instruction.value, Waypoint);
                 }
 
                 throw new NotSupportedException();
-            }
-
-            public long ManhattanDistance()
-            {
-                return Math.Abs(X) + Math.Abs(Y);
             }
         }
 
         private static long Mod(long x, long m)
         {
             return (x % m + m) % m;
-        }
-
-        private static (long, long) RotateL(long x, long y, long times)
-        {
-            foreach (var _ in Enumerable.Range(0, (int)times))
-            {
-                var nX = -y;
-                var nY = x;
-
-                x = nX;
-                y = nY;
-            }
-
-            return (x, y);
-        }
-
-        private static (long, long) RotateR(long x, long y, long times)
-        {
-            foreach (var _ in Enumerable.Range(0, (int)times))
-            {
-                var nX = y;
-                var nY = -x;
-
-                x = nX;
-                y = nY;
-            }
-
-            return (x, y);
         }
 
         public class Point
@@ -223,6 +186,40 @@ namespace Puzzles
             public static Point operator *(Point p0, long value)
             {
                 return new Point(p0.X * value, p0.Y * value);
+            }
+
+            public Point RotateL(long times)
+            {
+                var x = X;
+                var y = Y;
+
+                foreach (var _ in Enumerable.Range(0, (int)times))
+                {
+                    var nX = -y;
+                    var nY = x;
+
+                    x = nX;
+                    y = nY;
+                }
+
+                return new Point(x, y);
+            }
+
+            public Point RotateR(long times)
+            {
+                var x = X;
+                var y = Y;
+
+                foreach (var _ in Enumerable.Range(0, (int)times))
+                {
+                    var nX = y;
+                    var nY = -x;
+
+                    x = nX;
+                    y = nY;
+                }
+
+                return new Point(x, y);
             }
 
             public long ManhattanDistance()
