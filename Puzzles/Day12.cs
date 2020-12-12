@@ -8,14 +8,6 @@ namespace Puzzles
     // Puzzle 2: 25235
     public static class Day12
     {
-        private static readonly IDictionary<char, Point> Directions = new Dictionary<char, Point>
-        {
-            {'E', new Point(1, 0)},
-            {'S', new Point(0, -1)},
-            {'W', new Point(-1, 0)},
-            {'N', new Point(0, 1)}
-        };
-
         public static int Puzzle1()
         {
             return Input
@@ -42,11 +34,6 @@ namespace Puzzles
                 .ManhattanDistance();
         }
 
-        private static int Mod(int x, int m)
-        {
-            return (x % m + m) % m;
-        }
-
         private static IEnumerable<T2> Process<T1, T2>(this IEnumerable<T1> seq, T2 seed, Func<T1, T2, T2> projection)
         {
             foreach (var item in seq)
@@ -57,18 +44,8 @@ namespace Puzzles
             }
         }
 
-        public class State1
+        private record State1(int Direction, Point Position)
         {
-            public State1(int direction, Point position)
-            {
-                Direction = direction;
-                Position = position;
-            }
-
-            public int Direction { get; }
-
-            public Point Position { get; }
-
             public State1 NextState(char code, int value)
             {
                 switch (code)
@@ -90,18 +67,8 @@ namespace Puzzles
             }
         }
 
-        public class State2
+        private record State2(Point Position, Point Waypoint)
         {
-            public State2(Point position, Point waypoint)
-            {
-                Position = position;
-                Waypoint = waypoint;
-            }
-
-            public Point Position { get; }
-
-            public Point Waypoint { get; }
-
             public State2 NextState(char code, int value)
             {
                 switch (code)
@@ -123,18 +90,8 @@ namespace Puzzles
             }
         }
 
-        public class Point
+        private record Point(int X, int Y)
         {
-            public Point(int x, int y)
-            {
-                X = x;
-                Y = y;
-            }
-
-            public int X { get; }
-
-            public int Y { get; }
-
             public static Point operator +(Point p0, Point p1)
             {
                 return new Point(p0.X + p1.X, p0.Y + p1.Y);
@@ -149,15 +106,10 @@ namespace Puzzles
             {
                 return new Point(p0.X * p1.X - p0.Y * p1.Y, p0.X * p1.Y + p0.Y * p1.X);
             }
-            
+
             public Point Rotate(int degrees)
             {
-                var sin = new [] { 0, 1, 0, -1 };
-                var cos = new [] { 1, 0, -1, 0 };
-
-                var index = Mod(degrees / 90, 4);
-
-                return this * new Point(cos[index], sin[index]);
+                return this * new Point(Cos(degrees), Sin(degrees));
             }
 
             public int ManhattanDistance()
@@ -165,5 +117,28 @@ namespace Puzzles
                 return Math.Abs(X) + Math.Abs(Y);
             }
         }
+
+        private static int Mod(int x, int m)
+        {
+            return (x % m + m) % m;
+        }
+
+        private static int Cos(int degree)
+        {
+            return new[] { 1, 0, -1, 0 }[Mod(degree / 90, 4)];
+        }
+
+        private static int Sin(int degree)
+        {
+            return new[] { 0, 1, 0, -1 }[Mod(degree / 90, 4)];
+        }
+
+        private static readonly IDictionary<char, Point> Directions = new Dictionary<char, Point>
+        {
+            {'E', new Point(1, 0)},
+            {'S', new Point(0, -1)},
+            {'W', new Point(-1, 0)},
+            {'N', new Point(0, 1)}
+        };
     }
 }
