@@ -18,33 +18,45 @@ namespace Puzzles
 
         public static long Puzzle1()
         {
-            var instructions = Input.LoadLines("Puzzles.Input.input12.txt");
-
-            var state = new State1(0, new Point(0L, 0L));
-
-            foreach (var instruction in instructions
-                .Select(i => (code: i[0], value: int.Parse(i.Substring(1)))))
-                state = state.NextState(instruction.code, instruction.value);
-
-            return state.Position.ManhattanDistance();
+            return Input
+                .LoadLines("Puzzles.Input.input12.txt")
+                .Select(i => (code: i[0], value: int.Parse(i.Substring(1))))
+                .Process(
+                    new State1(0, new Point(0L, 0L)),
+                    (i, p) => p.NextState(i.code, i.value))
+                .Last()
+                .Position
+                .ManhattanDistance();
         }
 
         public static long Puzzle2()
         {
-            var instructions = Input.LoadLines("Puzzles.Input.input12.txt");
-
-            var state = new State2(new Point(0L, 0L), new Point(10L, 1L));
-
-            foreach (var instruction in instructions
-                .Select(i => (code: i[0], value: long.Parse(i.Substring(1)))))
-                state = state.NextState(instruction.code, instruction.value);
-
-            return state.Position.ManhattanDistance();
+            return Input
+                .LoadLines("Puzzles.Input.input12.txt")
+                .Select(i => (code: i[0], value: int.Parse(i.Substring(1))))
+                .Process(
+                    new State2(new Point(0L, 0L), new Point(10L, 1L)),
+                    (i, p) => p.NextState(i.code, i.value))
+                .Last()
+                .Position
+                .ManhattanDistance();
         }
 
         private static int Mod(int x, int m)
         {
             return (x % m + m) % m;
+        }
+
+        private static IEnumerable<T2> Process<T1, T2>(this IEnumerable<T1> seq, T2 seed, Func<T1, T2, T2> projection)
+        {
+            yield return seed;
+
+            foreach (var item in seq)
+            {
+                seed = projection(item, seed);
+
+                yield return seed;
+            }
         }
 
         public class State1
