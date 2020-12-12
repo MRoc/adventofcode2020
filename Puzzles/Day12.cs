@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Puzzles
@@ -7,66 +8,25 @@ namespace Puzzles
     // Puzzle 2: 25235
     public static class Day12
     {
+        private static readonly IDictionary<char, Point> Directions = new Dictionary<char, Point>
+        {
+            {'E', new Point(1, 0)},
+            {'S', new Point(0, -1)},
+            {'W', new Point(-1, 0)},
+            {'N', new Point(0, 1)}
+        };
+
         public static long Puzzle1()
         {
             var instructions = Input.LoadLines("Puzzles.Input.input12.txt");
 
-            var state = new State1(0L, new Point(0L, 0L));
+            var state = new State1(0, new Point(0L, 0L));
 
             foreach (var instruction in instructions
-               .Select(i => (code: i[0], value: long.Parse(i.Substring(1)))))
-            {
-                state = state.NextState(instruction);
-            }
+                .Select(i => (code: i[0], value: int.Parse(i.Substring(1)))))
+                state = state.NextState(instruction.code, instruction.value);
 
             return state.Position.ManhattanDistance();
-        }
-
-        public class State1
-        {
-            public State1(long direction, Point position)
-            {
-                Direction = direction;
-                Position = position;
-            }
-
-            public long Direction { get; }
-
-            public Point Position { get; }
-
-            public State1 NextState((char code, long value) instruction)
-            {
-                var moves = new[]
-                {
-                    (code: 'E', direction: new Point(1, 0)),
-                    (code: 'S', direction: new Point(0, -1)),
-                    (code: 'W', direction: new Point(-1, 0)),
-                    (code: 'N', direction: new Point(0, 1))
-                };
-
-                var (code, direction) = moves.FirstOrDefault(d => d.code == instruction.code);
-                if (code != 0)
-                {
-                    return new State1(Direction, Position + direction * instruction.value);
-                }
-
-                if (instruction.code == 'L')
-                {
-                    return new State1(Mod(Direction - instruction.value / 90L, 4), Position);
-                }
-
-                if (instruction.code == 'R')
-                {
-                    return new State1(Mod(Direction + instruction.value / 90L, 4), Position);
-                }
-
-                if (instruction.code == 'F')
-                {
-                    return new State1(Direction, Position + moves[Direction].direction * instruction.value);
-                }
-
-                throw new NotSupportedException();
-            }
         }
 
         public static long Puzzle2()
@@ -77,11 +37,47 @@ namespace Puzzles
 
             foreach (var instruction in instructions
                 .Select(i => (code: i[0], value: long.Parse(i.Substring(1)))))
-            {
-                state = state.NextState(instruction);
-            }
+                state = state.NextState(instruction.code, instruction.value);
 
             return state.Position.ManhattanDistance();
+        }
+
+        private static int Mod(int x, int m)
+        {
+            return (x % m + m) % m;
+        }
+
+        public class State1
+        {
+            public State1(int direction, Point position)
+            {
+                Direction = direction;
+                Position = position;
+            }
+
+            public int Direction { get; }
+
+            public Point Position { get; }
+
+            public State1 NextState(char code, int value)
+            {
+                switch (code)
+                {
+                    case 'E':
+                    case 'W':
+                    case 'S':
+                    case 'N':
+                        return new State1(Direction, Position + Directions[code] * value);
+                    case 'L':
+                        return new State1(Mod(Direction - value / 90, 4), Position);
+                    case 'R':
+                        return new State1(Mod(Direction + value / 90, 4), Position);
+                    case 'F':
+                        return new State1(Direction, Position + Directions.ElementAt(Direction).Value * value);
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
         }
 
         public class State2
@@ -96,44 +92,25 @@ namespace Puzzles
 
             public Point Waypoint { get; }
 
-            public State2 NextState((char code, long value) instruction)
+            public State2 NextState(char code, long value)
             {
-                var moves = new[]
+                switch (code)
                 {
-                    (code: 'E', direction: new Point(1, 0)),
-                    (code: 'S', direction: new Point(0, -1)),
-                    (code: 'W', direction: new Point(-1, 0)),
-                    (code: 'N', direction: new Point(0, 1))
-                };
-
-                var (code, direction) = moves.FirstOrDefault(d => d.code == instruction.code);
-                if (code != 0)
-                {
-                    return new State2(Position, Waypoint + direction * instruction.value);
+                    case 'E':
+                    case 'W':
+                    case 'S':
+                    case 'N':
+                        return new State2(Position, Waypoint + Directions[code] * value);
+                    case 'L':
+                        return new State2(Position, Waypoint.RotateL(value / 90L));
+                    case 'R':
+                        return new State2(Position, Waypoint.RotateR(value / 90L));
+                    case 'F':
+                        return new State2(Position + Waypoint * value, Waypoint);
+                    default:
+                        throw new NotSupportedException();
                 }
-
-                if (instruction.code == 'L')
-                {
-                    return new State2(Position, Waypoint.RotateL(instruction.value / 90L));
-                }
-
-                if (instruction.code == 'R')
-                {
-                    return new State2(Position, Waypoint.RotateR(instruction.value / 90L));
-                }
-
-                if (instruction.code == 'F')
-                {
-                    return new State2(Position + Waypoint * instruction.value, Waypoint);
-                }
-
-                throw new NotSupportedException();
             }
-        }
-
-        private static long Mod(long x, long m)
-        {
-            return (x % m + m) % m;
         }
 
         public class Point
@@ -153,36 +130,6 @@ namespace Puzzles
                 return new Point(p0.X + p1.X, p0.Y + p1.Y);
             }
 
-            public static Point operator -(Point p0, Point p1)
-            {
-                return new Point(p0.X - p1.X, p0.Y - p1.Y);
-            }
-
-            public static Point operator /(Point p0, Point p1)
-            {
-                return new Point(p0.X / p1.X, p0.Y / p1.Y);
-            }
-
-            public static Point operator *(Point p0, Point p1)
-            {
-                return new Point(p0.X * p1.X, p0.Y * p1.Y);
-            }
-
-            public static Point operator +(Point p0, long value)
-            {
-                return new Point(p0.X + value, p0.Y + value);
-            }
-
-            public static Point operator -(Point p0, long value)
-            {
-                return new Point(p0.X - value, p0.Y - value);
-            }
-
-            public static Point operator /(Point p0, long value)
-            {
-                return new Point(p0.X / value, p0.Y / value);
-            }
-
             public static Point operator *(Point p0, long value)
             {
                 return new Point(p0.X * value, p0.Y * value);
@@ -193,7 +140,7 @@ namespace Puzzles
                 var x = X;
                 var y = Y;
 
-                foreach (var _ in Enumerable.Range(0, (int)times))
+                foreach (var _ in Enumerable.Range(0, (int) times))
                 {
                     var nX = -y;
                     var nY = x;
@@ -210,7 +157,7 @@ namespace Puzzles
                 var x = X;
                 var y = Y;
 
-                foreach (var _ in Enumerable.Range(0, (int)times))
+                foreach (var _ in Enumerable.Range(0, (int) times))
                 {
                     var nX = y;
                     var nY = -x;
