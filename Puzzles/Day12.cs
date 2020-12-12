@@ -16,7 +16,7 @@ namespace Puzzles
                 .LoadLines("Puzzles.Input.input12.txt")
                 .Select(i => (code: i[0], value: int.Parse(i[1..])))
                 .Aggregate(
-                    new State1(0, new Point(0, 0)),
+                    new State1(new Point(0, 0), 0),
                     (s, p) => s.NextState(p.code, p.value))
                 .Position
                 .ManhattanDistance();
@@ -34,7 +34,7 @@ namespace Puzzles
                 .ManhattanDistance();
         }
 
-        private record State1(int Direction, Point Position)
+        private record State1(Point Position, int Direction)
         {
             public State1 NextState(char code, int value) => code switch
             {
