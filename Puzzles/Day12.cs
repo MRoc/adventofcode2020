@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Puzzles
 {
@@ -54,13 +55,13 @@ namespace Puzzles
                     case 'W':
                     case 'S':
                     case 'N':
-                        return new State1(Direction, Position + Directions[code] * value);
+                        return this with { Position = Position + Directions[code] * value };
                     case 'L':
-                        return new State1(Mod(Direction - value / 90, 4), Position);
+                        return this with { Direction = Mod(Direction - value / 90, 4) };
                     case 'R':
-                        return new State1(Mod(Direction + value / 90, 4), Position);
+                        return this with { Direction = Mod(Direction + value / 90, 4) };
                     case 'F':
-                        return new State1(Direction, Position + Directions.ElementAt(Direction).Value * value);
+                        return this with { Position = Position + Directions.ElementAt(Direction).Value * value };
                     default:
                         throw new NotSupportedException();
                 }
@@ -77,13 +78,13 @@ namespace Puzzles
                     case 'W':
                     case 'S':
                     case 'N':
-                        return new State2(Position, Waypoint + Directions[code] * value);
+                        return this with { Waypoint = Waypoint + Directions[code] * value };
                     case 'L':
-                        return new State2(Position, Waypoint.Rotate(value));
+                        return this with { Waypoint = Waypoint.Rotate(value) };
                     case 'R':
-                        return new State2(Position, Waypoint.Rotate(-value));
+                        return this with { Waypoint = Waypoint.Rotate(-value) };
                     case 'F':
-                        return new State2(Position + Waypoint * value, Waypoint);
+                        return this with { Position = Position + Waypoint * value };
                     default:
                         throw new NotSupportedException();
                 }
