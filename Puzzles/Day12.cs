@@ -14,10 +14,9 @@ namespace Puzzles
             return Input
                 .LoadLines("Puzzles.Input.input12.txt")
                 .Select(i => (code: i[0], value: int.Parse(i[1..])))
-                .Process(
+                .Aggregate(
                     new State1(0, new Point(0, 0)),
-                    (i, p) => p.NextState(i.code, i.value))
-                .Last()
+                    (s, p) => s.NextState(p.code, p.value))
                 .Position
                 .ManhattanDistance();
         }
@@ -27,22 +26,11 @@ namespace Puzzles
             return Input
                 .LoadLines("Puzzles.Input.input12.txt")
                 .Select(i => (code: i[0], value: int.Parse(i[1..])))
-                .Process(
+                .Aggregate(
                     new State2(new Point(0, 0), new Point(10, 1)),
-                    (i, p) => p.NextState(i.code, i.value))
-                .Last()
+                    (s, p) => s.NextState(p.code, p.value))
                 .Position
                 .ManhattanDistance();
-        }
-
-        private static IEnumerable<T2> Process<T1, T2>(this IEnumerable<T1> seq, T2 seed, Func<T1, T2, T2> projection)
-        {
-            foreach (var item in seq)
-            {
-                seed = projection(item, seed);
-
-                yield return seed;
-            }
         }
 
         private record State1(int Direction, Point Position)
