@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection.Emit;
 
 namespace Puzzles
 {
     // Puzzle 1: 2238
-    // Puzzle 2: 0
+    // Puzzle 2: 560214575859998
     public static class Day13
     {
         public static int Puzzle1()
         {
             var parts = Input
                 .Load("Puzzles.Input.input13.txt")
-                .Split('\n', ',')
+                .Split(new char[] {'\n', ','})
                 .Where(l => !string.IsNullOrEmpty(l) && l != "x")
                 .Select(int.Parse)
                 .ToArray();
@@ -32,43 +30,33 @@ namespace Puzzles
 
         public static long Puzzle2()
         {
-//            var parts = Input
-//                .Load("Puzzles.Input.input13.txt")
-//                .Split('\n', ',')
-//                .Where(l => !string.IsNullOrEmpty(l))
-//                .Select(l => l == "x" ? "0" : l)
-//                .Skip(1)
-//                .Select(long.Parse)
-//                .Select((n, i) => (number: n, mod: n - i))
-//                .Where(t => t.number != 0)
-//                .ToArray();
+            var parts = Input
+                .Load("Puzzles.Input.input13.txt")
+                .Split(new char[] { '\n', ',' })
+                .Where(l => !string.IsNullOrEmpty(l))
+                .Select(l => l == "x" ? "0" : l)
+                .Skip(1)
+                .Select(long.Parse)
+                .Select((n, i) => (i: i, n: n))
+                .Where(t => t.n != 0)
+                .ToArray();
 
-//            var numbers = parts.Select(p => p.number).ToArray();
-//            var modulos = parts.Select(p => p.mod).ToArray();
+            // Disclaimer: I searched for help to come up with this solution as I am pretty bad at number theory.
 
-//            var step = numbers[0];
+            var step = parts[0].n;
+            var t = 0L;
 
-//            var t = 0L;
+            foreach (var (i, n) in parts.Skip(1))
+            {
+                while ((t + i) % n != 0)
+                {
+                    t += step;
+                }
 
-//            while (true)
-//            {
-//                for (int i = 1; i < parts.Length; ++i)
-//                {
-//                    if (t % numbers[i] != modulos[i])
-//                    {
-//                        goto Label;
-//                    }
-//                }
+                step *= n;
+            }
 
-//                return t;
-
-//Label:
-
-//                t += step;
-
-//            }
-
-            return 0;
+            return t;
         }
 
 
