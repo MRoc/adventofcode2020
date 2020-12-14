@@ -18,10 +18,10 @@ namespace Puzzles
 
             foreach (var line in Input.LoadLines("Puzzles.Input.input14.txt"))
             {
-                if (line.StartsWith("mask"))
+                var match = MaskDecoder.Match(line);
+                if (match.Success)
                 {
-                    var mask = MaskDecoder
-                        .Match(line)
+                    var mask = match
                         .Groups[1]
                         .Value
                         .AsEnumerable()
@@ -48,7 +48,7 @@ namespace Puzzles
 
                     memory[address] = value & (long) maskAnd | (long) maskOr;
                 }
-            }
+            } 
 
             return memory.Select(i => i.Value).Sum();
         }
