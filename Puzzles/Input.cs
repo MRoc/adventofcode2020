@@ -12,7 +12,7 @@ namespace Puzzles
         {
             using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream(name);
             using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
+            return reader.ReadToEnd().Replace("\r", string.Empty);
         }
 
         public static IReadOnlyList<string> LoadLines(string name)
