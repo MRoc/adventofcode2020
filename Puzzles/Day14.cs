@@ -21,36 +21,19 @@ namespace Puzzles
                 var match = MaskDecoder.Match(line);
                 if (match.Success)
                 {
-                    var mask = match
-                        .Groups[1]
-                        .Value
-                        .AsEnumerable()
-                        .Reverse()
-                        .Select((b, i) => (b: b, i: i))
-                        .Where(t => t.b != 'X')
-                        .ToArray();
-
-                    maskOr = mask
-                        .Where(t => t.b == '1')
-                        .Select(t => 0x1UL << t.i)
-                        .Aggregate((a, b) => a | b);
-
-                    maskAnd = ~mask
-                        .Where(t => t.b == '0')
-                        .Select(t => 0x1UL << t.i)
-                        .Aggregate((a, b) => a | b);
+                    maskOr = Convert.ToUInt64(match.Groups[1].Value.Replace('X', '0'), 2);
+                    maskAnd = ~Convert.ToUInt64(match.Groups[1].Value.Replace('1', 'X').Replace('0', '1').Replace('X', '0'), 2);
                 }
                 else
                 {
                     var result = AssignmentDecoder.Match(line);
                     var address = int.Parse(result.Groups[1].Value);
                     var value = long.Parse(result.Groups[2].Value);
-
                     memory[address] = value & (long) maskAnd | (long) maskOr;
                 }
             } 
 
-            return memory.Select(i => i.Value).Sum();
+            return memory.Values.Sum();
         }
 
         private static readonly Regex MaskDecoder = new Regex(@"^mask\s=\s([0|1|X]+)\b");
