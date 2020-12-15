@@ -20,28 +20,30 @@ namespace Puzzles
         {
             var input = new[] { 13, 16, 0, 12, 15, 1 };
 
-            var store = new int[turns, 2];
-
-            for (int turn = 0; turn < input.Length; ++turn)
+            var memory = new int[turns];
+            for (int turn = 0; turn < input.Length - 1; ++turn)
             {
-                store[input[turn], 1] = turn + 1;
+                memory[input[turn]] = turn + 1;
             }
 
             var value = input.Last();
+            var lastValue = value;
+            var lastTurn = input.Length;
 
             for (int turn = input.Length + 1; turn <= turns; ++turn)
             {
-                if (store[value, 0] == 0)
+                if (memory[value] == 0)
                 {
                     value = 0;
                 }
                 else
                 {
-                    value = store[value, 1] - store[value, 0];
+                    value = lastTurn - memory[value];
                 }
 
-                store[value, 0] = store[value, 1];
-                store[value, 1] = turn;
+                memory[lastValue] = lastTurn;
+                lastValue = value;
+                lastTurn = turn;
             }
 
             return value;
