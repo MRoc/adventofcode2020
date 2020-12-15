@@ -79,10 +79,9 @@ namespace Puzzles
         {
             public void StoreTurn(int number, int turn)
             {
-                if (_store.ContainsKey(number))
+                if (_store.TryGetValue(number, out var result))
                 {
-                    var (_, i1) = _store[number];
-                    _store[number] = (i1, turn);
+                    _store[number] = (result.i1, turn);
                 }
                 else
                 {
@@ -92,14 +91,12 @@ namespace Puzzles
 
             public (int i0, int i1) GetTurns(int number)
             {
-                if (_store.ContainsKey(number))
+                if (_store.TryGetValue(number, out var result))
                 {
-                    return _store[number];
+                    return result;
                 }
-                else
-                {
-                    return (-1, -1);
-                }
+
+                return (-1, -1);
             }
 
             private readonly Dictionary<int, (int i0, int i1)> _store = new Dictionary<int, (int i0, int i1)>();
