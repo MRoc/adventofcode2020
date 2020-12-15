@@ -5,7 +5,7 @@ using System.Linq;
 namespace Puzzles
 {
     // Puzzle 1: 319
-    // Puzzle 2: 0
+    // Puzzle 2: 2424
     public static class Day15
     {
         public static long Puzzle1()
@@ -81,12 +81,12 @@ namespace Puzzles
             {
                 if (_store.ContainsKey(number))
                 {
-                    _store[number][0] = _store[number][1];
-                    _store[number][1] = turn;
+                    var (_, i1) = _store[number];
+                    _store[number] = (i1, turn);
                 }
                 else
                 {
-                    _store[number] = new int[] { -1, turn };
+                    _store[number] = (i0: -1, i1: turn);
                 }
             }
 
@@ -94,7 +94,7 @@ namespace Puzzles
             {
                 if (_store.ContainsKey(number))
                 {
-                    return (_store[number][0], _store[number][1]);
+                    return _store[number];
                 }
                 else
                 {
@@ -102,7 +102,7 @@ namespace Puzzles
                 }
             }
 
-            private readonly Dictionary<int, int[]> _store = new Dictionary<int, int[]>();
+            private readonly Dictionary<int, (int i0, int i1)> _store = new Dictionary<int, (int i0, int i1)>();
         }
 
     }
