@@ -21,18 +21,17 @@ namespace Puzzles
             var input = new[] { 13, 16, 0, 12, 15, 1 };
 
             var store = new int[turns, 2];
-            store.InitStore();
 
             for (int turn = 0; turn < input.Length; ++turn)
             {
-                store[input[turn], 1] = turn;
+                store[input[turn], 1] = turn + 1;
             }
 
             var value = input.Last();
 
-            for (int turn = input.Length; turn < turns; ++turn)
+            for (int turn = input.Length + 1; turn <= turns; ++turn)
             {
-                if (store[value, 0] == -1)
+                if (store[value, 0] == 0)
                 {
                     value = 0;
                 }
@@ -46,16 +45,6 @@ namespace Puzzles
             }
 
             return value;
-        }
-
-        private static void InitStore(this int[,] arr)
-        {
-            var len = arr.GetLength(0);
-            for (int i = 0; i < len; ++i)
-            {
-                arr[i, 0] = -1;
-                arr[i, 1] = -1;
-            }
         }
     }
 }
