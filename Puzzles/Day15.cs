@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Puzzles
 {
@@ -25,29 +23,29 @@ namespace Puzzles
             var store = new int[turns, 2];
             store.InitStore();
 
-            foreach (var (n, i) in input.Select((n, i) => (n, i)))
+            for (int turn = 0; turn < input.Length; ++turn)
             {
-                store[n, 1] = i;
+                store[input[turn], 1] = turn;
             }
 
-            var before = input.Last();
+            var value = input.Last();
 
             for (int turn = input.Length; turn < turns; ++turn)
             {
-                if (store[before, 0] == -1)
+                if (store[value, 0] == -1)
                 {
-                    before = 0;
+                    value = 0;
                 }
                 else
                 {
-                    before = store[before, 1] - store[before, 0];
+                    value = store[value, 1] - store[value, 0];
                 }
 
-                store[before, 0] = store[before, 1];
-                store[before, 1] = turn;
+                store[value, 0] = store[value, 1];
+                store[value, 1] = turn;
             }
 
-            return before;
+            return value;
         }
 
         private static void InitStore(this int[,] arr)
