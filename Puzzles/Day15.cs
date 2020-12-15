@@ -10,97 +10,54 @@ namespace Puzzles
     {
         public static long Puzzle1()
         {
-            var turns = 2020;
-
-            var input = new[] { 13, 16, 0, 12, 15, 1 };
-
-            var store = new DictQueue();
-            foreach (var (n, i) in input.Select((n, i) => (n, i)))
-            {
-                store.StoreTurn(n, i);
-            }    
-
-            var before = input.Last();
-
-            for (int turn = input.Length; turn < turns; ++turn)
-            {
-                var (i0, i1) = store.GetTurns(before);
-
-                if (i0 == -1)
-                {
-                    before = 0;
-                }
-                else
-                {
-                    before = i1 - i0;
-                }
-                
-                store.StoreTurn(before, turn);
-            }
-
-            return before;
+            return Calculate(2020);
         }
-
 
         public static long Puzzle2()
         {
-            var turns = 30000000;
+            return Calculate(30000000);
+        }
 
+        private static int Calculate(int turns)
+        {
             var input = new[] { 13, 16, 0, 12, 15, 1 };
 
-            var store = new DictQueue();
+            var store = new int[turns, 2];
+            store.InitStore();
+
             foreach (var (n, i) in input.Select((n, i) => (n, i)))
             {
-                store.StoreTurn(n, i);
+                store[n, 1] = i;
             }
 
             var before = input.Last();
 
             for (int turn = input.Length; turn < turns; ++turn)
             {
-                var (i0, i1) = store.GetTurns(before);
-
-                if (i0 == -1)
+                if (store[before, 0] == -1)
                 {
                     before = 0;
                 }
                 else
                 {
-                    before = i1 - i0;
+                    before = store[before, 1] - store[before, 0];
                 }
 
-                store.StoreTurn(before, turn);
+                store[before, 0] = store[before, 1];
+                store[before, 1] = turn;
             }
 
             return before;
         }
 
-        private class DictQueue
+        private static void InitStore(this int[,] arr)
         {
-            public void StoreTurn(int number, int turn)
+            var len = arr.GetLength(0);
+            for (int i = 0; i < len; ++i)
             {
-                if (_store.TryGetValue(number, out var result))
-                {
-                    _store[number] = (result.i1, turn);
-                }
-                else
-                {
-                    _store[number] = (i0: -1, i1: turn);
-                }
+                arr[i, 0] = -1;
+                arr[i, 1] = -1;
             }
-
-            public (int i0, int i1) GetTurns(int number)
-            {
-                if (_store.TryGetValue(number, out var result))
-                {
-                    return result;
-                }
-
-                return (-1, -1);
-            }
-
-            private readonly Dictionary<int, (int i0, int i1)> _store = new Dictionary<int, (int i0, int i1)>();
         }
-
     }
 }
