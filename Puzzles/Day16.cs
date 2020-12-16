@@ -63,17 +63,11 @@ namespace Puzzles
                 }
             }
 
-            var mul = 1L;
-            for (int i = 0; i < rules.Length; i++)
-            {
-                if (rules[i].Title.StartsWith("departure"))
-                {
-                    var valueIndex = possibleMatches[i][0];
-                    mul *= mine[valueIndex];
-                }
-            }
-
-            return mul;
+            return rules
+                .Select((r, ri) => (r, ri))
+                .Where(t => t.r.Title.StartsWith("departure"))
+                .Select(t => mine[possibleMatches[t.ri][0]])
+                .Aggregate(1L, (a, b) => a * b);
         }
 
         private static (Rule[] rules, int[] mine, int[][] nearby) ParseInput(this string input)
