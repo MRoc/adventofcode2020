@@ -29,23 +29,11 @@ namespace Puzzles
                 .Where(n => n.All(n => rules.Any(r => r.IsContained(n))))
                 .ToArray();
 
-            var values = validNearby
-                .Transpose();
-
-            var matches = rules
-                .Select((r, ri) =>
-                    values
-                        .Select((v, vi) => (v, vi))
-                        .Where(t => r.IsContained(t.v))
-                        .Select(t => t.vi)
-                        .ToList())
-                .ToArray()
-                .ReducePossibleMatches();
-            
             return rules
-                .Select((r, ri) => (r, ri))
-                .Where(t => t.r.Title.StartsWith("departure"))
-                .Select(t => mine[matches[t.ri][0]])
+                .CreatePossibleMatches(validNearby.Transpose())
+                .ReducePossibleMatches()
+                .Where(t => t.Key.Title.StartsWith("departure"))
+                .Select(t => mine[t.Value.First()])
                 .Aggregate(1L, (a, b) => a * b);
         }
 
@@ -108,28 +96,41 @@ namespace Puzzles
         {
             return text.Split(',').Select(int.Parse).ToArray();
         }
+        
+        private static Dictionary<Rule, List<int>> CreatePossibleMatches(this IEnumerable<Rule> rules, int[][] values)
+        {
+            return rules
+                .ToDictionary(
+                    r => r,
+                    r => values
+                        .Select((v, vi) => (v, vi))
+                        .Where(t => r.IsContained(t.v))
+                        .Select(t => t.vi)
+                        .ToList());
+        }
 
-        private static List<int>[] ReducePossibleMatches(this List<int>[] possibleMatches)
+        private static Dictionary<Rule, List<int>> ReducePossibleMatches(this Dictionary<Rule, List<int>> possibleMatches)
         {
             var fixedColumn = new HashSet<int>();
-            while (possibleMatches.Any(c => c.Count > 1))
+            while (possibleMatches.Any(c => c.Value.Count > 1))
             {
                 var nextCandidate = -1;
-                for (int i = 0; i < possibleMatches.Length && nextCandidate == -1; ++i)
+
+                foreach (var possibleMatch in possibleMatches)
                 {
-                    if (possibleMatches[i].Count == 1
-                        && !fixedColumn.Contains(possibleMatches[i][0]))
+                    if (possibleMatch.Value.Count == 1
+                        && !fixedColumn.Contains(possibleMatch.Value.First()))
                     {
-                        nextCandidate = possibleMatches[i][0];
+                        nextCandidate = possibleMatch.Value.First();
                         fixedColumn.Add(nextCandidate);
                     }
                 }
 
                 if (nextCandidate != -1)
                 {
-                    foreach (var t in possibleMatches.Where(t => t.Count != 1))
+                    foreach (var t in possibleMatches.Where(t => t.Value.Count > 1))
                     {
-                        t.Remove(nextCandidate);
+                        t.Value.Remove(nextCandidate);
                     }
                 }
             }
