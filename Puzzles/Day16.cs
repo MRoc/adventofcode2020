@@ -29,7 +29,7 @@ namespace Puzzles
                 .Where(n => n.All(n => rules.Any(r => r.IsContained(n))))
                 .ToArray();
 
-            var values = validNearby.Regroup();
+            var values = validNearby.Transpose();
 
             var possibleMatches = rules
                 .Select((r, ri) =>
@@ -130,20 +130,20 @@ namespace Puzzles
             return text.Split(',').Select(int.Parse).ToArray();
         }
 
-        private static int[][] Regroup(this int[][] tickets)
+        private static int[][] Transpose(this int[][] array)
         {
-            var result = new int[tickets[0].Length][];
+            var result = new int[array[0].Length][];
             
             for (int i = 0; i < result.Length; ++i)
             {
-                result[i] = new int[tickets.Length];
+                result[i] = new int[array.Length];
             }
 
-            for (int i = 0; i < tickets.Length; ++i)
+            for (int i = 0; i < array.Length; ++i)
             {
-                for (int j = 0; j < tickets[i].Length; ++j)
+                for (int j = 0; j < array[i].Length; ++j)
                 {
-                    result[j][i] = tickets[i][j];
+                    result[j][i] = array[i][j];
                 }
             }
 
