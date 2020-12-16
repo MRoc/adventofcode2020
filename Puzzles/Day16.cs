@@ -29,44 +29,23 @@ namespace Puzzles
                 .Where(n => n.All(n => rules.Any(r => r.IsContained(n))))
                 .ToArray();
 
-            var values = validNearby.Transpose();
+            var values = validNearby
+                .Transpose();
 
-            var possibleMatches = rules
+            var matches = rules
                 .Select((r, ri) =>
                     values
                         .Select((v, vi) => (v, vi))
                         .Where(t => r.IsContained(t.v))
                         .Select(t => t.vi)
                         .ToList())
-                .ToArray();
+                .ToArray()
+                .ReducePossibleMatches();
             
-            var fixedColumn = new HashSet<int>();
-            while (possibleMatches.Any(c => c.Count > 1))
-            {
-                var nextCandidate = -1;
-                for (int i = 0; i < possibleMatches.Length && nextCandidate == -1; ++i)
-                {
-                    if (possibleMatches[i].Count == 1
-                        && !fixedColumn.Contains(possibleMatches[i][0]))
-                    {
-                        nextCandidate = possibleMatches[i][0];
-                        fixedColumn.Add(nextCandidate);
-                    }
-                }
-
-                if (nextCandidate != -1)
-                {
-                    foreach (var t in possibleMatches.Where(t => t.Count != 1))
-                    {
-                        t.Remove(nextCandidate);
-                    }
-                }
-            }
-
             return rules
                 .Select((r, ri) => (r, ri))
                 .Where(t => t.r.Title.StartsWith("departure"))
-                .Select(t => mine[possibleMatches[t.ri][0]])
+                .Select(t => mine[matches[t.ri][0]])
                 .Aggregate(1L, (a, b) => a * b);
         }
 
@@ -130,6 +109,33 @@ namespace Puzzles
             return text.Split(',').Select(int.Parse).ToArray();
         }
 
+        private static List<int>[] ReducePossibleMatches(this List<int>[] possibleMatches)
+        {
+            var fixedColumn = new HashSet<int>();
+            while (possibleMatches.Any(c => c.Count > 1))
+            {
+                var nextCandidate = -1;
+                for (int i = 0; i < possibleMatches.Length && nextCandidate == -1; ++i)
+                {
+                    if (possibleMatches[i].Count == 1
+                        && !fixedColumn.Contains(possibleMatches[i][0]))
+                    {
+                        nextCandidate = possibleMatches[i][0];
+                        fixedColumn.Add(nextCandidate);
+                    }
+                }
+
+                if (nextCandidate != -1)
+                {
+                    foreach (var t in possibleMatches.Where(t => t.Count != 1))
+                    {
+                        t.Remove(nextCandidate);
+                    }
+                }
+            }
+            return possibleMatches;
+        }
+        
         private static int[][] Transpose(this int[][] array)
         {
             var result = new int[array[0].Length][];
