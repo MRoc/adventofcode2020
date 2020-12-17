@@ -40,22 +40,21 @@ namespace Puzzles
         {
             var output = new HashSet<Point3>();
 
-            foreach (var p in input)
+            foreach (var activeCells in input)
             {
-                var activeAdjacentCells = p.AdjacentCells().Count(c => input.Contains(c));
-                if (2 <= activeAdjacentCells && activeAdjacentCells <=3)
+                var activeAdjacentCells = activeCells.AdjacentCells().Count(input.Contains);
+                if (2 <= activeAdjacentCells && activeAdjacentCells <= 3)
                 {
-                    output.Add(p);
+                    output.Add(activeCells);
                 }
-                
-                foreach (var adjacentCell in p.AdjacentCells())
-                {
-                    var activeAdjacentCells1 = adjacentCell.AdjacentCells().Count(c => input.Contains(c));
-                    if (activeAdjacentCells1 == 3)
-                    {
-                        output.Add(adjacentCell);
-                    }
-                }
+            }
+            
+            foreach (var adjacentCell in input
+                .SelectMany(p => p.AdjacentCells())
+                .Distinct()
+                .Where(c0 => c0.AdjacentCells().Count(input.Contains) == 3))
+            {
+                output.Add(adjacentCell);
             }
 
             return output.ToArray();
