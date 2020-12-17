@@ -44,44 +44,66 @@ namespace Puzzles
 
         private static Point3[] NextState3(this Point3[] input)
         {
-            var output = new HashSet<Point3>();
-
-            foreach (var activeCells in input
-                .Where(c => c.AdjacentCells().OptimizedCountInRange(input.Contains, 2, 3)))
-            {
-                output.Add(activeCells);
-            }
-
-            foreach (var adjacentCell in input
-                .SelectMany(p => p.AdjacentCells())
-                .Distinct()
-                .Where(c0 => c0.AdjacentCells().OptimizedCountEquals(input.Contains, 3)))
-            {
-                output.Add(adjacentCell);
-            }
-
-            return output.ToArray();
+            return input
+                .CreateAdjacentCells3()
+                .Where(t => t.Value == 3
+                            || t.Value == 2 && input.Contains(t.Key))
+                .Select(t => t.Key)
+                .ToArray();
         }
 
         private static Point4[] NextState4(this Point4[] input)
         {
-            var output = new HashSet<Point4>();
+            return input
+                .CreateAdjacentCells4()
+                .Where(t => t.Value == 3
+                            || t.Value == 2 && input.Contains(t.Key))
+                .Select(t => t.Key)
+                .ToArray();
+        }
 
-            foreach (var activeCells in input
-                .Where(c => c.AdjacentCells().OptimizedCountInRange(input.Contains, 2, 3)))
+        private static Dictionary<Point4, int> CreateAdjacentCells4(this Point4[] input)
+        {
+            var result = new Dictionary<Point4, int>();
+
+            foreach (var p in input)
             {
-                output.Add(activeCells);
+                foreach (var c in p.AdjacentCells())
+                {
+                    if (result.ContainsKey(c))
+                    {
+                        result[c]++;
+                    }
+                    else
+                    {
+                        result[c] = 1;
+                    }
+                }
             }
 
-            foreach (var adjacentCell in input
-                .SelectMany(p => p.AdjacentCells())
-                .Distinct()
-                .Where(c0 => c0.AdjacentCells().OptimizedCountEquals(input.Contains, 3)))
+            return result;
+        }
+
+        private static Dictionary<Point3, int> CreateAdjacentCells3(this Point3[] input)
+        {
+            var result = new Dictionary<Point3, int>();
+
+            foreach (var p in input)
             {
-                output.Add(adjacentCell);
+                foreach (var c in p.AdjacentCells())
+                {
+                    if (result.ContainsKey(c))
+                    {
+                        result[c]++;
+                    }
+                    else
+                    {
+                        result[c] = 1;
+                    }
+                }
             }
 
-            return output.ToArray();
+            return result;
         }
 
         public record Point3(int X, int Y, int Z)
@@ -125,48 +147,6 @@ namespace Puzzles
                     }
                 }
             }
-        }
-
-        public static bool OptimizedCountEquals<T>(this IEnumerable<T> seq, Func<T, bool> predicate, int expected)
-        {
-            using var iterator = seq.GetEnumerator();
-
-            var count = 0;
-            while (iterator.MoveNext())
-            {
-                if (predicate(iterator.Current))
-                {
-                    count++;
-
-                    if (count > expected)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return count == expected;
-        }
-
-        public static bool OptimizedCountInRange<T>(this IEnumerable<T> seq, Func<T, bool> predicate, int min, int max)
-        {
-            using var iterator = seq.GetEnumerator();
-
-            var count = 0;
-            while (iterator.MoveNext())
-            {
-                if (predicate(iterator.Current))
-                {
-                    count++;
-
-                    if (count > max)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return min <= count && count <= max;
         }
     }
 }
