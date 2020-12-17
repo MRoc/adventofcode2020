@@ -24,7 +24,7 @@ namespace Puzzles
             var (rules, mine, nearby) = Input
                 .Load("Puzzles.Input.input16.txt")
                 .ParseInput();
-            
+
             var validNearby = nearby
                 .Where(n => n.All(n => rules.Any(r => r.IsContained(n))))
                 .ToArray();
@@ -33,7 +33,7 @@ namespace Puzzles
                 .CreatePossibleMatches(validNearby.Transpose())
                 .ReducePossibleMatches()
                 .Where(t => t.Key.Title.StartsWith("departure"))
-                .Select(t => mine[t.Value.First()])
+                .Select(t => mine[t.Value])
                 .Aggregate(1L, (a, b) => a * b);
         }
 
@@ -41,7 +41,7 @@ namespace Puzzles
         {
             var parts = input
                 .Split("\n\n");
-            
+
             var rules = parts[0]
                 .Split('\n')
                 .Select(Rule.Parse)
@@ -59,7 +59,7 @@ namespace Puzzles
                 .Skip(1)
                 .Select(l => l.ParseCommaSeparatedInt())
                 .ToArray();
-            
+
             return (rules, mine, nearby);
         }
 
@@ -68,7 +68,7 @@ namespace Puzzles
             public static Rule Parse(string line)
             {
                 var result = RuleDecoder.Match(line);
-                
+
                 return new Rule(
                     result.Groups[1].Value,
                     Range.Parse(result.Groups[2].Value, result.Groups[3].Value),
@@ -96,7 +96,7 @@ namespace Puzzles
         {
             return text.Split(',').Select(int.Parse).ToArray();
         }
-        
+
         private static Dictionary<Rule, List<int>> CreatePossibleMatches(this IEnumerable<Rule> rules, int[][] values)
         {
             return rules
@@ -109,38 +109,40 @@ namespace Puzzles
                         .ToList());
         }
 
-        private static Dictionary<Rule, List<int>> ReducePossibleMatches(this Dictionary<Rule, List<int>> possibleMatches)
+        private static Dictionary<Rule, int> ReducePossibleMatches(this Dictionary<Rule, List<int>> possibleMatches)
         {
             var fixedColumn = new HashSet<int>();
+            
             while (possibleMatches.Any(c => c.Value.Count > 1))
             {
                 var nextCandidate = -1;
-
-                foreach (var possibleMatch in possibleMatches)
+                foreach (var possibleMatch in possibleMatches
+                    .Where(pm => pm.Value.Count == 1
+                                 && !fixedColumn.Contains(pm.Value.First())))
                 {
-                    if (possibleMatch.Value.Count == 1
-                        && !fixedColumn.Contains(possibleMatch.Value.First()))
-                    {
-                        nextCandidate = possibleMatch.Value.First();
-                        fixedColumn.Add(nextCandidate);
-                    }
+                    nextCandidate = possibleMatch.Value.First();
                 }
 
                 if (nextCandidate != -1)
                 {
+                    fixedColumn.Add(nextCandidate);
                     foreach (var t in possibleMatches.Where(t => t.Value.Count > 1))
                     {
                         t.Value.Remove(nextCandidate);
                     }
                 }
             }
-            return possibleMatches;
+            
+            return possibleMatches
+                .ToDictionary(
+                    t => t.Key,
+                    t => t.Value.First());
         }
-        
+
         private static int[][] Transpose(this int[][] array)
         {
             var result = new int[array[0].Length][];
-            
+
             for (int i = 0; i < result.Length; ++i)
             {
                 result[i] = new int[array.Length];
