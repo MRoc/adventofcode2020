@@ -62,48 +62,24 @@ namespace Puzzles
                 .ToArray();
         }
 
-        private static Dictionary<Point4, int> CreateAdjacentCells4(this Point4[] input)
-        {
-            var result = new Dictionary<Point4, int>();
-
-            foreach (var p in input)
-            {
-                foreach (var c in p.AdjacentCells())
-                {
-                    if (result.ContainsKey(c))
-                    {
-                        result[c]++;
-                    }
-                    else
-                    {
-                        result[c] = 1;
-                    }
-                }
-            }
-
-            return result;
-        }
-
         private static Dictionary<Point3, int> CreateAdjacentCells3(this Point3[] input)
         {
-            var result = new Dictionary<Point3, int>();
+            return input
+                .SelectMany(i => i.AdjacentCells())
+                .GroupBy(c => c)
+                .ToDictionary(
+                    i => i.Key,
+                    i => i.Count());
+        }
 
-            foreach (var p in input)
-            {
-                foreach (var c in p.AdjacentCells())
-                {
-                    if (result.ContainsKey(c))
-                    {
-                        result[c]++;
-                    }
-                    else
-                    {
-                        result[c] = 1;
-                    }
-                }
-            }
-
-            return result;
+        private static Dictionary<Point4, int> CreateAdjacentCells4(this Point4[] input)
+        {
+            return input
+                .SelectMany(i => i.AdjacentCells())
+                .GroupBy(c => c)
+                .ToDictionary(
+                    i => i.Key,
+                    i => i.Count());
         }
 
         public record Point3(int X, int Y, int Z)
