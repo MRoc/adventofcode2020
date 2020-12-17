@@ -46,19 +46,16 @@ namespace Puzzles
         {
             var output = new HashSet<Point3>();
 
-            foreach (var activeCells in input)
+            foreach (var activeCells in input
+                .Where(c => c.AdjacentCells().OptimizedCountInRange(input.Contains, 2, 3)))
             {
-                var activeAdjacentCells = activeCells.AdjacentCells().Count(input.Contains);
-                if (2 <= activeAdjacentCells && activeAdjacentCells <= 3)
-                {
-                    output.Add(activeCells);
-                }
+                output.Add(activeCells);
             }
-            
+
             foreach (var adjacentCell in input
                 .SelectMany(p => p.AdjacentCells())
                 .Distinct()
-                .Where(c0 => c0.AdjacentCells().Count(input.Contains) == 3))
+                .Where(c0 => c0.AdjacentCells().OptimizedCountEquals(input.Contains, 3)))
             {
                 output.Add(adjacentCell);
             }
@@ -70,19 +67,16 @@ namespace Puzzles
         {
             var output = new HashSet<Point4>();
 
-            foreach (var activeCells in input)
+            foreach (var activeCells in input
+                .Where(c => c.AdjacentCells().OptimizedCountInRange(input.Contains, 2, 3)))
             {
-                var activeAdjacentCells = activeCells.AdjacentCells().Count(input.Contains);
-                if (2 <= activeAdjacentCells && activeAdjacentCells <= 3)
-                {
-                    output.Add(activeCells);
-                }
+                output.Add(activeCells);
             }
 
             foreach (var adjacentCell in input
                 .SelectMany(p => p.AdjacentCells())
                 .Distinct()
-                .Where(c0 => c0.AdjacentCells().Count(input.Contains) == 3))
+                .Where(c0 => c0.AdjacentCells().OptimizedCountEquals(input.Contains, 3)))
             {
                 output.Add(adjacentCell);
             }
@@ -131,6 +125,48 @@ namespace Puzzles
                     }
                 }
             }
+        }
+
+        public static bool OptimizedCountEquals<T>(this IEnumerable<T> seq, Func<T, bool> predicate, int expected)
+        {
+            using var iterator = seq.GetEnumerator();
+
+            var count = 0;
+            while (iterator.MoveNext())
+            {
+                if (predicate(iterator.Current))
+                {
+                    count++;
+
+                    if (count > expected)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return count == expected;
+        }
+
+        public static bool OptimizedCountInRange<T>(this IEnumerable<T> seq, Func<T, bool> predicate, int min, int max)
+        {
+            using var iterator = seq.GetEnumerator();
+
+            var count = 0;
+            while (iterator.MoveNext())
+            {
+                if (predicate(iterator.Current))
+                {
+                    count++;
+
+                    if (count > max)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return min <= count && count <= max;
         }
     }
 }
