@@ -23,6 +23,7 @@ namespace Puzzles
         public static long Puzzle2()
         {
             var state = LoadInput4();
+            
             foreach (var i in Enumerable.Range(0, 6))
             {
                 state = state.NextState();
@@ -56,21 +57,15 @@ namespace Puzzles
         private static IAdjacents[] NextState(this IAdjacents[] input)
         {
             return input
-                .CreateAdjacentCells()
-                .Where(t => t.Value == 3
-                            || t.Value == 2 && input.Contains(t.Key))
-                .Select(t => t.Key)
-                .ToArray();
-        }
-
-        private static Dictionary<IAdjacents, int> CreateAdjacentCells(this IAdjacents[] input)
-        {
-            return input
                 .SelectMany(i => i.AdjacentCells())
                 .GroupBy(c => c)
                 .ToDictionary(
                     i => i.Key,
-                    i => i.Count());
+                    i => i.Count())
+                .Where(t => t.Value == 3
+                            || t.Value == 2 && input.Contains(t.Key))
+                .Select(t => t.Key)
+                .ToArray();
         }
 
         public interface IAdjacents
