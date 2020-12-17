@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 
 namespace Puzzles
 {
@@ -59,12 +60,10 @@ namespace Puzzles
             return input
                 .SelectMany(i => i.AdjacentCells())
                 .GroupBy(c => c)
-                .ToDictionary(
-                    i => i.Key,
-                    i => i.Count())
-                .Where(t => t.Value == 3
-                            || t.Value == 2 && input.Contains(t.Key))
-                .Select(t => t.Key)
+                .Select(g => (point: g.Key, count: g.Count()))
+                .Where(t => t.count == 3
+                            || t.count == 2 && input.Contains(t.point))
+                .Select(t => t.point)
                 .ToArray();
         }
 
