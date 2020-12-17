@@ -10,11 +10,11 @@ namespace Puzzles
     {
         public static long Puzzle1()
         {
-            var state = LoadInput();
+            var state = LoadInput3();
 
             foreach (var i in Enumerable.Range(0, 6))
             {
-                state = state.NextState3();
+                state = state.NextState();
             }
 
             return state.Length;
@@ -22,16 +22,16 @@ namespace Puzzles
 
         public static long Puzzle2()
         {
-            var state = LoadInput().Select(p => new Point4(p.X, p.Y, 0, 0)).ToArray();
+            var state = LoadInput4();
             foreach (var i in Enumerable.Range(0, 6))
             {
-                state = state.NextState4();
+                state = state.NextState();
             }
 
             return state.Length;
         }
 
-        private static Point3[] LoadInput()
+        private static IAdjacents[] LoadInput3()
         {
             return Input
                 .Load("Puzzles.Input.input17.txt")
@@ -42,27 +42,28 @@ namespace Puzzles
                 .ToArray();
         }
 
-        private static Point3[] NextState3(this Point3[] input)
+        private static IAdjacents[] LoadInput4()
+        {
+            return Input
+                .Load("Puzzles.Input.input17.txt")
+                .Split('\n')
+                .SelectMany((l, cy) => l.Select((c, cx) => (x: cx, y: cy, c)))
+                .Where(t => t.c == '#')
+                .Select(t => new Point4(t.x, t.y, 0, 0))
+                .ToArray();
+        }
+
+        private static IAdjacents[] NextState(this IAdjacents[] input)
         {
             return input
-                .CreateAdjacentCells3()
+                .CreateAdjacentCells()
                 .Where(t => t.Value == 3
                             || t.Value == 2 && input.Contains(t.Key))
                 .Select(t => t.Key)
                 .ToArray();
         }
 
-        private static Point4[] NextState4(this Point4[] input)
-        {
-            return input
-                .CreateAdjacentCells4()
-                .Where(t => t.Value == 3
-                            || t.Value == 2 && input.Contains(t.Key))
-                .Select(t => t.Key)
-                .ToArray();
-        }
-
-        private static Dictionary<Point3, int> CreateAdjacentCells3(this Point3[] input)
+        private static Dictionary<IAdjacents, int> CreateAdjacentCells(this IAdjacents[] input)
         {
             return input
                 .SelectMany(i => i.AdjacentCells())
@@ -72,19 +73,14 @@ namespace Puzzles
                     i => i.Count());
         }
 
-        private static Dictionary<Point4, int> CreateAdjacentCells4(this Point4[] input)
+        public interface IAdjacents
         {
-            return input
-                .SelectMany(i => i.AdjacentCells())
-                .GroupBy(c => c)
-                .ToDictionary(
-                    i => i.Key,
-                    i => i.Count());
+            IEnumerable<IAdjacents> AdjacentCells();
         }
 
-        public record Point3(int X, int Y, int Z)
+        public record Point3(int X, int Y, int Z) : IAdjacents
         {
-            public IEnumerable<Point3> AdjacentCells()
+            public IEnumerable<IAdjacents> AdjacentCells()
             {
                 for (int x = X - 1; x <= X + 1; ++x)
                 {
@@ -102,9 +98,9 @@ namespace Puzzles
             }
         }
 
-        public record Point4(int X, int Y, int Z, int W)
+        public record Point4(int X, int Y, int Z, int W) : IAdjacents
         {
-            public IEnumerable<Point4> AdjacentCells()
+            public IEnumerable<IAdjacents> AdjacentCells()
             {
                 for (int x = X - 1; x <= X + 1; ++x)
                 {
