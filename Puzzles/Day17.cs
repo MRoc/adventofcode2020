@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
 
 namespace Puzzles
 {
@@ -13,7 +11,7 @@ namespace Puzzles
         {
             var state = LoadInput3();
 
-            foreach (var i in Enumerable.Range(0, 6))
+            foreach (var _ in Enumerable.Range(0, 6))
             {
                 state = state.NextState();
             }
@@ -25,7 +23,7 @@ namespace Puzzles
         {
             var state = LoadInput4();
             
-            foreach (var i in Enumerable.Range(0, 6))
+            foreach (var _ in Enumerable.Range(0, 6))
             {
                 state = state.NextState();
             }
@@ -40,7 +38,8 @@ namespace Puzzles
                 .Split('\n')
                 .SelectMany((l, cy) => l.Select((c, cx) => (x: cx, y: cy, c)))
                 .Where(t => t.c == '#')
-                .Select(t => new Point3(t.x, t.y, 0))
+                .Select(t => new Point3D(t.x, t.y, 0))
+                .Cast<IAdjacents>()
                 .ToArray();
         }
 
@@ -51,7 +50,8 @@ namespace Puzzles
                 .Split('\n')
                 .SelectMany((l, cy) => l.Select((c, cx) => (x: cx, y: cy, c)))
                 .Where(t => t.c == '#')
-                .Select(t => new Point4(t.x, t.y, 0, 0))
+                .Select(t => new Point4D(t.x, t.y, 0, 0))
+                .Cast<IAdjacents>()
                 .ToArray();
         }
 
@@ -72,7 +72,7 @@ namespace Puzzles
             IEnumerable<IAdjacents> AdjacentCells();
         }
 
-        public record Point3(int X, int Y, int Z) : IAdjacents
+        public record Point3D(int X, int Y, int Z) : IAdjacents
         {
             public IEnumerable<IAdjacents> AdjacentCells()
             {
@@ -84,7 +84,7 @@ namespace Puzzles
                         {
                             if (x != X || y != Y || z != Z)
                             {
-                                yield return new Point3(x, y, z);
+                                yield return new Point3D(x, y, z);
                             }
                         }
                     }
@@ -92,7 +92,7 @@ namespace Puzzles
             }
         }
 
-        public record Point4(int X, int Y, int Z, int W) : IAdjacents
+        public record Point4D(int X, int Y, int Z, int W) : IAdjacents
         {
             public IEnumerable<IAdjacents> AdjacentCells()
             {
@@ -106,7 +106,7 @@ namespace Puzzles
                             {
                                 if (x != X || y != Y || z != Z || w != W)
                                 {
-                                    yield return new Point4(x, y, z, w);
+                                    yield return new Point4D(x, y, z, w);
                                 }
                             }
                         }
