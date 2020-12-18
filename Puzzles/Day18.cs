@@ -80,29 +80,29 @@ namespace Puzzles
         
         private static long EvaluateRPN(this string[] tokens)
         {
-            var stack = new Stack<string>();
+            var stack = new Stack<long>();
 
             foreach (var token in tokens)
             {
                 if (token == "+")
                 {
-                    var x = long.Parse(stack.Pop());
-                    var y = long.Parse(stack.Pop());
-                    stack.Push((x + y).ToString());
+                    var x = stack.Pop();
+                    var y = stack.Pop();
+                    stack.Push(x + y);
                 }
                 else if (token == "*")
                 {
-                    var x = long.Parse(stack.Pop());
-                    var y = long.Parse(stack.Pop());
-                    stack.Push((x * y).ToString());
+                    var x = stack.Pop();
+                    var y = stack.Pop();
+                    stack.Push(x * y);
                 }
                 else
                 {
-                    stack.Push(token);
+                    stack.Push(long.Parse(token));
                 }
             }
 
-            return long.Parse(stack.Pop());
+            return stack.Pop();
         }
     }
 }
