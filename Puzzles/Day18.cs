@@ -13,13 +13,16 @@ namespace Puzzles
         {
             return Input
                 .LoadLines("Puzzles.Input.input18.txt")
-                .Select(l => l.Tokenize().ParseRpn().EvaluateRpn())
+                .Select(l => l.Tokenize().ParseRpn(false).EvaluateRpn())
                 .Sum();
         }
 
         public static long Puzzle2()
         {
-            return 0;
+            return Input
+                .LoadLines("Puzzles.Input.input18.txt")
+                .Select(l => l.Tokenize().ParseRpn(true).EvaluateRpn())
+                .Sum();
         }
 
         private static string[] Tokenize(this string input)
@@ -30,7 +33,7 @@ namespace Puzzles
                 .ToArray();
         }
 
-        private static string[] ParseRpn(this string[] tokens)
+        private static string[] ParseRpn(this string[] tokens, bool operatorPrececence)
         {
             // https://en.wikipedia.org/wiki/Shunting-yard_algorithm
             
@@ -45,7 +48,9 @@ namespace Puzzles
                 }
                 else if (token == "+" || token == "*")
                 {
-                    while (operatorStack.Any() && operatorStack.Peek() != "(")
+                    while (operatorStack.Any()
+                           && (!operatorPrececence || token[0] <= operatorStack.Peek()[0])
+                           && operatorStack.Peek() != "(")
                     {
                         output.Enqueue(operatorStack.Pop());
                     }
@@ -77,7 +82,7 @@ namespace Puzzles
 
             return output.ToArray();
         }
-        
+
         private static long EvaluateRpn(this string[] tokens)
         {
             var stack = new Stack<long>();
