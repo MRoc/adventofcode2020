@@ -13,7 +13,7 @@ namespace Puzzles
         {
             return Input
                 .LoadLines("Puzzles.Input.input18.txt")
-                .Select(l => l.Tokenize().ParseRPN().EvaluateRPN())
+                .Select(l => l.Tokenize().ParseRpn().EvaluateRpn())
                 .Sum();
         }
 
@@ -30,7 +30,7 @@ namespace Puzzles
                 .ToArray();
         }
 
-        private static string[] ParseRPN(this string[] tokens)
+        private static string[] ParseRpn(this string[] tokens)
         {
             // https://en.wikipedia.org/wiki/Shunting-yard_algorithm
             
@@ -78,7 +78,7 @@ namespace Puzzles
             return output.ToArray();
         }
         
-        private static long EvaluateRPN(this string[] tokens)
+        private static long EvaluateRpn(this string[] tokens)
         {
             var stack = new Stack<long>();
 
