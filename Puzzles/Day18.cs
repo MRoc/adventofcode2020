@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace Puzzles
 {
     // Puzzle 1: 11076907812171
-    // Puzzle 2: 0
+    // Puzzle 2: 283729053022731
     public static class Day18
     {
         public static long Puzzle1()
@@ -25,50 +25,50 @@ namespace Puzzles
                 .Sum();
         }
 
-        private static string[] Tokenize(this string input)
+        private static char[] Tokenize(this string input)
         {
             return Regex.Split(input, @"([*()\^\/]|(?<!E)[\+\-])")
                 .Where(l => !string.IsNullOrEmpty(l.Trim()))
-                .Select(l => l.Trim())
+                .Select(l => l.Trim()[0])
                 .ToArray();
         }
 
-        private static string[] ParseRpn(this string[] tokens, bool operatorPrececence)
+        private static char[] ParseRpn(this char[] tokens, bool operatorPrececence)
         {
             // https://en.wikipedia.org/wiki/Shunting-yard_algorithm
             
-            var output = new Queue<string>();
-            var operatorStack = new Stack<string>();
+            var output = new Queue<char>();
+            var operatorStack = new Stack<char>();
 
             foreach (var token in tokens)
             {
-                if (Char.IsNumber(token[0]))
+                if (char.IsNumber(token))
                 {
                     output.Enqueue(token);
                 }
-                else if (token == "+" || token == "*")
+                else if (token == '+' || token == '*')
                 {
                     while (operatorStack.Any()
-                           && (!operatorPrececence || token[0] <= operatorStack.Peek()[0])
-                           && operatorStack.Peek() != "(")
+                           && (!operatorPrececence || token <= operatorStack.Peek())
+                           && operatorStack.Peek() != '(')
                     {
                         output.Enqueue(operatorStack.Pop());
                     }
 
                     operatorStack.Push(token);
                 }
-                else if (token == "(")
+                else if (token == '(')
                 {
                     operatorStack.Push(token);
                 }
-                else if (token == ")")
+                else if (token == ')')
                 {
-                    while (operatorStack.Any() && operatorStack.Peek() != "(")
+                    while (operatorStack.Any() && operatorStack.Peek() != '(')
                     {
                         output.Enqueue(operatorStack.Pop());
                     }
 
-                    if (operatorStack.Any() && operatorStack.Peek() == "(")
+                    if (operatorStack.Any() && operatorStack.Peek() == '(')
                     {
                         operatorStack.Pop();
                     }
@@ -83,19 +83,19 @@ namespace Puzzles
             return output.ToArray();
         }
 
-        private static long EvaluateRpn(this string[] tokens)
+        private static long EvaluateRpn(this char[] tokens)
         {
             var stack = new Stack<long>();
 
             foreach (var token in tokens)
             {
-                if (token == "+")
+                if (token == '+')
                 {
                     var x = stack.Pop();
                     var y = stack.Pop();
                     stack.Push(x + y);
                 }
-                else if (token == "*")
+                else if (token == '*')
                 {
                     var x = stack.Pop();
                     var y = stack.Pop();
@@ -103,7 +103,7 @@ namespace Puzzles
                 }
                 else
                 {
-                    stack.Push(long.Parse(token));
+                    stack.Push(token - '0');
                 }
             }
 
