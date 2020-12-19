@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
-using System.Text.RegularExpressions;
 
 namespace Puzzles
 {
@@ -17,45 +14,65 @@ namespace Puzzles
             var rules = input[0]
                 .Split("\n")
                 .Select(l => Rule.Parse(l))
-                .OrderBy(r => r.Index)
-                .ToArray();
+                .ToDictionary(r => r.Index, r => r);
 
             return input[1]
                 .Split("\n")
+                .Where(l => !string.IsNullOrEmpty(l))
                 .Select(m => Parse(m, 0, rules, 0) == m.Length)
                 .Count(v => v);
         }
 
-        private static int Parse(string input, int inputIndex, Rule[] rules, int ruleIndex)
+        public static long Puzzle2()
+        {
+            var input = Input.Load("Puzzles.Input.input19.txt").Split("\n\n");
+
+            var rules = input[0]
+                .Split("\n")
+                .Select(l => Rule.Parse(l))
+                .ToDictionary(r => r.Index, r => r);
+
+            rules[8] = Rule.Parse("8: 42 | 42 8");
+            rules[11] = Rule.Parse("11: 42 31 | 42 11 31");
+
+            // 211 is the wrong answer
+
+            return input[1]
+                .Split("\n")
+                .Where(l => !string.IsNullOrEmpty(l))
+                .Select(m => Parse(m, 0, rules, 0) >= m.Length)
+                .Count(v => v);
+        }
+        
+        private static int Parse(string input, int index, Dictionary<int, Rule> rules, int ruleIndex)
         {
             var rule = rules[ruleIndex];
             if (rule.Symbol != 0)
             {
-                return inputIndex < input.Length && input[inputIndex] == rule.Symbol
-                    ? inputIndex + 1
-                    : -1;
+                if (index < input.Length && input[index] == rule.Symbol)
+                {
+                    return index + 1;
+                }
             }
             else
             {
-                var tmpIndex = inputIndex;
+                var tmpIndex = index;
                 for (int i = 0; i < rule.Index0.Length && tmpIndex != -1; ++i)
                 {
-                    var ri = rule.Index0[i];
-                    tmpIndex = Parse(input, tmpIndex, rules, ri);
+                    tmpIndex = Parse(input, tmpIndex, rules, rule.Index0[i]);
                 }
 
                 if (tmpIndex > 0)
                 {
                     return tmpIndex;
                 }
-                    
+
                 if (rule.Index1 is { })
                 {
-                    tmpIndex = inputIndex;
+                    tmpIndex = index;
                     for (int i = 0; i < rule.Index1.Length && tmpIndex != -1; ++i)
                     {
-                        var ri = rule.Index1[i];
-                        tmpIndex = Parse(input, tmpIndex, rules, ri);
+                        tmpIndex = Parse(input, tmpIndex, rules, rule.Index1[i]);
                     }
 
                     if (tmpIndex > 0)
@@ -66,11 +83,6 @@ namespace Puzzles
             }
 
             return -1;
-        }
-
-        public static long Puzzle2()
-        {
-            return 0;
         }
 
         public record Rule(int Index, char Symbol, int[] Index0, int[] Index1)
