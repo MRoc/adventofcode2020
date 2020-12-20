@@ -24,6 +24,7 @@
     <None Remove="Input\input17.txt" />
     <None Remove="Input\input18.txt" />
     <None Remove="Input\input19.txt" />
+    <None Remove="Input\input20.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +46,7 @@
     <EmbeddedResource Include="Input\input08.txt" />
     <EmbeddedResource Include="Input\input17.txt" />
     <EmbeddedResource Include="Input\input16.txt" />
+    <EmbeddedResource Include="Input\input20.txt" />
     <EmbeddedResource Include="Input\input19.txt" />
     <EmbeddedResource Include="Input\input18.txt" />
   </ItemGroup>
