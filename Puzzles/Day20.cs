@@ -12,34 +12,118 @@ namespace Puzzles
     {
         public static long Puzzle1()
         {
-            var tiles = Input
+            var tiles = LoadTiles();
+
+            var picture = tiles.Solve();
+
+            var minX = picture.Keys.Select(p => p.X).Min();
+            var maxX = picture.Keys.Select(p => p.X).Max();
+
+            var minY = picture.Keys.Select(p => p.Y).Min();
+            var maxY = picture.Keys.Select(p => p.Y).Max();
+
+            Console.WriteLine($"X=[{minX} - {maxX}]");
+            Console.WriteLine($"Y=[{minY} - {maxY}]");
+
+            var corners = new[]
+            {
+                picture[new Point(minX, minY)],
+                picture[new Point(minX, maxY)],
+                picture[new Point(maxX, minY)],
+                picture[new Point(maxX, maxY)],
+            };
+
+            return corners.Select(t =>(long) t.Id).Aggregate((a, b) => a * b);
+        }
+        
+        public static long Puzzle2()
+        {
+            var tiles = LoadTiles();
+
+            var picture = tiles.Solve();
+
+            return 0;
+        }
+
+        private static Tile[] LoadTiles()
+        {
+            return Input
                 .Load("Puzzles.Input.input20.txt").Split("\n\n")
                 .Where(l => !string.IsNullOrEmpty(l))
                 .Select(Tile.Parse)
                 .ToArray();
+        }
+        
+        private static Dictionary<Point, Tile> Solve(this Tile[] tilesArray)
+        {
+            var tiles = tilesArray.ToList();
+            
+            var picture = new Dictionary<Point, Tile>();
 
-            var fourers = new List<long>();
-
-            foreach (var tile in tiles)
+            while (tiles.Any())
             {
-                var numbersOfTile = tile.AsNumbers().Concat(tile.AsNumbers().Select(n => n.Reverse10Bits()));
-                var allOtherNumbers = tiles.Where(t => t.Id != tile.Id).SelectMany(t =>
-                    t.AsNumbers().Concat(t.AsNumbers().Select(n => n.Reverse10Bits())));
-
-                var overlap = numbersOfTile.Where(n => allOtherNumbers.Contains(n)).Count();
-
-                if (overlap == 4)
+                if (!picture.Any())
                 {
-                    fourers.Add(tile.Id);
+                    var tile = tiles.First();
+                    picture[new Point(0, 0)] = tile;
+                    tiles.Remove(tile);
+                }
+                else
+                {
+                    foreach (var picTile in picture.ToArray())
+                    {
+                        // Top
+                        var topPosition = new Point(picTile.Key.X, picTile.Key.Y - 1);
+                        if (!picture.ContainsKey(topPosition))
+                        {
+                            var top = tiles.SingleOrDefault(t => t.AsAllNumbers().Contains(picTile.Value.Top));
+                            if (top is { })
+                            {
+                                picture[topPosition] = top.Variations().Single(v => v.Bottom == picTile.Value.Top);
+                                tiles.Remove(top);
+                            }
+                        }
+
+                        // Right
+                        var rightPosition = new Point(picTile.Key.X + 1, picTile.Key.Y);
+                        if (!picture.ContainsKey(rightPosition))
+                        {
+                            var right = tiles.SingleOrDefault(t => t.AsAllNumbers().Contains(picTile.Value.Right));
+                            if (right is { })
+                            {
+                                picture[rightPosition] = right.Variations().Single(v => v.Left == picTile.Value.Right);
+                                tiles.Remove(right);
+                            }
+                        }
+
+                        // Bottom
+                        var bottomPosition = new Point(picTile.Key.X, picTile.Key.Y + 1);
+                        if (!picture.ContainsKey(bottomPosition))
+                        {
+                            var bottom = tiles.SingleOrDefault(t => t.AsAllNumbers().Contains(picTile.Value.Bottom));
+                            if (bottom is { })
+                            {
+                                picture[bottomPosition] = bottom.Variations().Single(v => v.Top == picTile.Value.Bottom);
+                                tiles.Remove(bottom);
+                            }
+                        }
+
+                        // Left
+                        var leftPosition = new Point(picTile.Key.X - 1, picTile.Key.Y);
+                        if (!picture.ContainsKey(leftPosition))
+                        {
+                            var left = tiles.SingleOrDefault(t => t.AsAllNumbers().Contains(picTile.Value.Left));
+                            if (left is { })
+                            {
+                                picture[leftPosition] = left.Variations().Single(v => v.Right == picTile.Value.Left);
+                                tiles.Remove(left);
+                            }
+                        }
+                    }
                 }
             }
 
-            return fourers.Aggregate((a, b) => a * b);
-        }
-
-        public static long Puzzle2()
-        {
-            return 0;
+            return picture;
         }
 
         public record Tile(int Id, int Top, int Right, int Bottom, int Left)
@@ -63,11 +147,6 @@ namespace Puzzles
                     Convert.ToInt32(data.Select(l => l.First()).AsString(), 2));
             }
 
-            public Tile FlipVertical()
-            {
-                return new Tile(Id, Bottom, Right.Reverse10Bits(), Top, Left.Reverse10Bits());
-            }
-
             public Tile FlipHorizontal()
             {
                 return new Tile(Id, Top.Reverse10Bits(), Left, Bottom.Reverse10Bits(), Right);
@@ -81,6 +160,24 @@ namespace Puzzles
             public IEnumerable<int> AsNumbers()
             {
                 return new[] {Top, Right, Bottom, Left};
+            }
+            
+            public IEnumerable<int> AsAllNumbers()
+            {
+                return AsNumbers().Concat(AsNumbers().Select(n => n.Reverse10Bits()));
+            }
+
+            public IEnumerable<Tile> Variations()
+            {
+                yield return this;
+                yield return this.RotateRight90();
+                yield return this.RotateRight90().RotateRight90();
+                yield return this.RotateRight90().RotateRight90().RotateRight90();
+
+                yield return this.FlipHorizontal();
+                yield return this.FlipHorizontal().RotateRight90();
+                yield return this.FlipHorizontal().RotateRight90().RotateRight90();
+                yield return this.FlipHorizontal().RotateRight90().RotateRight90().RotateRight90();
             }
         }
 
