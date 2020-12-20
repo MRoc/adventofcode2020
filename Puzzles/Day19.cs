@@ -56,28 +56,28 @@ namespace Puzzles
             }
             else
             {
-                var tmpIndex = index;
-                for (int i = 0; i < rule.Index0.Length && tmpIndex != -1; ++i)
+                var tmpIndex0 = index;
+                for (int i = 0; i < rule.Index0.Length && tmpIndex0 != -1; ++i)
                 {
-                    tmpIndex = Parse(input, tmpIndex, rules, rule.Index0[i]);
+                    tmpIndex0 = Parse(input, tmpIndex0, rules, rule.Index0[i]);
                 }
 
-                if (tmpIndex > 0)
+                if (tmpIndex0 > 0)
                 {
-                    return tmpIndex;
+                    return tmpIndex0;
                 }
 
                 if (rule.Index1 is { })
                 {
-                    tmpIndex = index;
-                    for (int i = 0; i < rule.Index1.Length && tmpIndex != -1; ++i)
+                    var tmpIndex1 = index;
+                    for (int i = 0; i < rule.Index1.Length && tmpIndex1 != -1; ++i)
                     {
-                        tmpIndex = Parse(input, tmpIndex, rules, rule.Index1[i]);
+                        tmpIndex1 = Parse(input, tmpIndex1, rules, rule.Index1[i]);
                     }
 
-                    if (tmpIndex > 0)
+                    if (tmpIndex1 > 0)
                     {
-                        return tmpIndex;
+                        return tmpIndex1;
                     }
                 }
             }
