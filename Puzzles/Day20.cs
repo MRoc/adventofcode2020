@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Puzzles
 {
     // Puzzle 1: 16192267830719
-    // Puzzle 2: 0
+    // Puzzle 2: 1909
     public static class Day20
     {
         public static long Puzzle1()
@@ -21,10 +24,7 @@ namespace Puzzles
 
             var minY = picture.Keys.Select(p => p.Y).Min();
             var maxY = picture.Keys.Select(p => p.Y).Max();
-
-            Console.WriteLine($"X=[{minX} - {maxX}]");
-            Console.WriteLine($"Y=[{minY} - {maxY}]");
-
+            
             var corners = new[]
             {
                 picture[new Point(minX, minY)],
@@ -38,11 +38,13 @@ namespace Puzzles
         
         public static long Puzzle2()
         {
-            var tiles = LoadTiles();
-
-            var picture = tiles.Solve();
-
-            return 0;
+            return LoadTiles()
+                .Solve()
+                .Normalize()
+                .Combine()
+                .CreateVariations()
+                .ToArray()
+                .Sum(p => p.MarkAndCountSeaMonster());
         }
 
         private static Tile[] LoadTiles()
@@ -126,7 +128,20 @@ namespace Puzzles
             return picture;
         }
 
-        public record Tile(int Id, int Top, int Right, int Bottom, int Left)
+        private static Dictionary<Point, Tile> Normalize(this Dictionary<Point, Tile> picture)
+        {
+            var minX = picture.Keys.Select(p => p.X).Min();
+            var maxX = picture.Keys.Select(p => p.X).Max();
+
+            var minY = picture.Keys.Select(p => p.Y).Min();
+            var maxY = picture.Keys.Select(p => p.Y).Max();
+
+            return picture.ToDictionary(
+                i => new Point(i.Key.X - minX, i.Key.Y - minY),
+                i => i.Value);
+        }
+
+        public record Tile(int Id, char[][] Data, int Top, int Right, int Bottom, int Left)
         {
             public static Tile Parse(string text)
             {
@@ -141,6 +156,7 @@ namespace Puzzles
                 
                 return new Tile(
                     id,
+                    data,
                     Convert.ToInt32(data.First().AsString(), 2),
                     Convert.ToInt32(data.Select(l => l.Last()).AsString(), 2),
                     Convert.ToInt32(data.Last().AsString(), 2),
@@ -149,12 +165,24 @@ namespace Puzzles
 
             public Tile FlipHorizontal()
             {
-                return new Tile(Id, Top.Reverse10Bits(), Left, Bottom.Reverse10Bits(), Right);
+                return new Tile(
+                    Id,
+                    Data.FlipHorizontal(),
+                    Top.Reverse10Bits(),
+                    Left,
+                    Bottom.Reverse10Bits(),
+                    Right);
             }
 
             public Tile RotateRight90()
             {
-                return new Tile(Id, Left.Reverse10Bits(), Top, Right.Reverse10Bits(), Bottom);
+                return new Tile(
+                    Id,
+                    Data.RotateRight90(),
+                    Left.Reverse10Bits(), 
+                    Top, 
+                    Right.Reverse10Bits(),
+                    Bottom);
             }
 
             public IEnumerable<int> AsNumbers()
@@ -178,6 +206,15 @@ namespace Puzzles
                 yield return this.FlipHorizontal().RotateRight90();
                 yield return this.FlipHorizontal().RotateRight90().RotateRight90();
                 yield return this.FlipHorizontal().RotateRight90().RotateRight90().RotateRight90();
+            }
+
+            public char[][] Crop()
+            {
+                return Data
+                    .Skip(1)
+                    .Take(Data.Length - 2)
+                    .Select(r => r.Skip(1).Take(Data.Length - 2).ToArray())
+                    .ToArray();
             }
         }
 
@@ -204,6 +241,167 @@ namespace Puzzles
                 .Reverse()
                 .Select((b, i) => b ? (1 << i) : 0)
                 .Aggregate((a, b) => a | b);
+        }
+        
+        private static char[][] Combine(this Dictionary<Point, Tile> picture)
+        {
+            var minX = picture.Keys.Select(p => p.X).Min();
+            var maxX = picture.Keys.Select(p => p.X).Max();
+
+            var minY = picture.Keys.Select(p => p.Y).Min();
+            var maxY = picture.Keys.Select(p => p.Y).Max();
+
+            var d = picture.First().Value.Data.Length - 2;
+
+            var width = (maxX + 1) * d;
+            var height= (maxY + 1) * d;
+
+            var result = new char[height][];
+            for (int i = 0; i < height; ++i)
+            {
+                result[i] = new char[width];
+            }
+            
+            for (int tileY = 0; tileY <= maxY; ++tileY)
+            {
+                for (int tileX = 0; tileX <= maxX; ++tileX)
+                {
+                    var tile = picture[new Point(tileX, tileY)].Crop();
+                    
+                    var offsetY = tileY * d;
+                    var offsetX = tileX * d;
+                    
+                    for (int y = 0; y < d; ++y)
+                    {
+                        for (int x = 0; x < d; ++x)
+                        {
+                            result[offsetY + y][offsetX + x] = tile[y][x];
+
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static IEnumerable<char[][]> CreateVariations(this char[][] data)
+        {
+            yield return data;
+            yield return data.RotateRight90();
+            yield return data.RotateRight90().RotateRight90();
+            yield return data.RotateRight90().RotateRight90().RotateRight90();
+            yield return data.FlipHorizontal();
+            yield return data.FlipHorizontal().RotateRight90();
+            yield return data.FlipHorizontal().RotateRight90().RotateRight90();
+            yield return data.FlipHorizontal().RotateRight90().RotateRight90().RotateRight90();
+        }
+
+        private static char[][] FlipHorizontal(this char[][] data)
+        {
+            return data.Select(r => r.Reverse().ToArray()).ToArray();
+        }
+
+        private static char[][] RotateRight90(this char[][] data)
+        {
+            var result = data.Select(d => d.ToArray()).ToArray();
+            for (int i = 0; i < data.Length; ++i)
+            {
+                for (int j = 0; j < data.Length; ++j)
+                {
+                    result[i][j] = data[data.Length - j - 1][i];
+                }
+            }
+
+            return result;
+        }
+
+        private static int CountSeaMonster(this char[][] picture)
+        {
+            var seaMonster = Seamonster().SeamonsterToPoints().ToArray();
+            var maxX = seaMonster.Max(t => t.X) + 1;
+            var maxY = seaMonster.Max(t=> t.Y) + 1;
+
+            var count = 0;
+
+            for (int y = 0; y < picture.Length - maxY; ++y)
+            {
+                for (int x = 0; x < picture[y].Length - maxX; ++x)
+                {
+                    if (seaMonster.All(p => picture[y + p.Y][x + p.X] == '1'))
+                    {
+                        count++;
+                    }
+                }
+            }
+            
+            return count;
+        }
+
+        private static int MarkAndCountSeaMonster(this char[][] picture)
+        {
+            var seaMonster = Seamonster().SeamonsterToPoints().ToArray();
+            var maxX = seaMonster.Max(t => t.X) + 1;
+            var maxY = seaMonster.Max(t => t.Y) + 1;
+
+            var found = false;
+
+            for (int y = 0; y < picture.Length - maxY; ++y)
+            {
+                for (int x = 0; x < picture[y].Length - maxX; ++x)
+                {
+                    if (seaMonster.All(p => picture[y + p.Y][x + p.X] == '1'))
+                    {
+                        found = true;
+                        foreach (var p in seaMonster)
+                        {
+                            picture[y + p.Y][x + p.X] = 'X';
+                        }
+                    }
+                }
+            }
+            
+            var count = 0;
+
+            if (found)
+            {
+                for (int y = 0; y < picture.Length; ++y)
+                {
+                    for (int x = 0; x < picture[y].Length; ++x)
+                    {
+                        if (picture[y][x] == '1')
+                        {
+                            count++;
+                        }
+                    }
+                }
+            }
+
+            return count;
+        }
+
+        private static char[][] Seamonster()
+        {
+            return new char[][]
+            {
+                "                  # ".ToArray(),
+                "#    ##    ##    ###".ToArray(),
+                " #  #  #  #  #  #   ".ToArray(),
+            };
+        }
+
+        private static IEnumerable<Point> SeamonsterToPoints(this char[][] monster)
+        {
+            for (int y = 0; y < monster.Length; ++y)
+            {
+                for (int x = 0; x < monster[y].Length; x++)
+                {
+                    if (monster[y][x] == '#')
+                    {
+                        yield return new Point(x, y);
+                    }
+                }
+            }
         }
     }
 }
