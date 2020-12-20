@@ -57,16 +57,10 @@ namespace Puzzles
             }
             else
             {
-                IEnumerable<int> tmpIndex0 = new int[] { index };
-                foreach (var tmpIndex in rule.Index0.Aggregate(tmpIndex0, (current, subRule) => current.SelectMany(j => Parse(input, j, rules, subRule))))
+                foreach (var subRules in rule.Indexes)
                 {
-                    yield return tmpIndex;
-                }
-
-                if (rule.Index1 is { })
-                {
-                    IEnumerable<int> tmpIndex1 = new int[] { index };
-                    foreach (var tmpIndex in rule.Index1.Aggregate(tmpIndex1, (current, subRule) => current.SelectMany(j => Parse(input, j, rules, subRule))))
+                    IEnumerable<int> startIndex = new int[] { index };
+                    foreach (var tmpIndex in subRules.Aggregate(startIndex, (current, subRule) => current.SelectMany(j => Parse(input, j, rules, subRule))))
                     {
                         yield return tmpIndex;
                     }
@@ -74,7 +68,7 @@ namespace Puzzles
             }
         }
         
-        public record Rule(int Index, char Symbol, int[] Index0, int[] Index1)
+        public record Rule(int Index, char Symbol, int[][] Indexes)
         {
             public static Rule Parse(string line)
             {
@@ -82,8 +76,7 @@ namespace Puzzles
 
                 var index = int.Parse(parts[0]);
                 var symbol = default(char);
-                var index0 = default(int[]);
-                var index1 = default(int[]);
+                var indexes = default(int[][]);
 
                 if (parts[1].StartsWith("\""))
                 {
@@ -91,19 +84,12 @@ namespace Puzzles
                 }
                 else
                 {
-                    if (parts[1].Contains("|"))
-                    {
-                        var subParts = parts[1].Split(" | ");
-                        index0 = subParts[0].Split(" ").Select(int.Parse).ToArray();
-                        index1 = subParts[1].Split(" ").Select(int.Parse).ToArray();
-                    }
-                    else
-                    {
-                        index0 = parts[1].Split(" ").Select(int.Parse).ToArray();
-                    }
+                    indexes = parts[1].Split(" | ")
+                        .Select(p => p.Split(" ").Select(int.Parse).ToArray())
+                        .ToArray();
                 }
 
-                return new Rule(index, symbol, index0, index1);
+                return new Rule(index, symbol, indexes);
             }
         }
     }
