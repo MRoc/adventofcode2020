@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Puzzles
@@ -14,13 +13,13 @@ namespace Puzzles
 
             var rules = input[0]
                 .Split("\n")
-                .Select(l => Rule.Parse(l))
+                .Select(Rule.Parse)
                 .ToDictionary(r => r.Index, r => r);
 
             return input[1]
                 .Split("\n")
                 .Where(l => !string.IsNullOrEmpty(l))
-                .Select(m => Parse(m, 0, rules, 0).Any(l => l == m.Length))
+                .Select(m => Evaluate(m, 0, rules, 0).Any(l => l == m.Length))
                 .Count(v => v);
         }
 
@@ -30,22 +29,20 @@ namespace Puzzles
 
             var rules = input[0]
                 .Split("\n")
-                .Select(l => Rule.Parse(l))
+                .Select(Rule.Parse)
                 .ToDictionary(r => r.Index, r => r);
 
             rules[8] = Rule.Parse("8: 42 | 42 8");
             rules[11] = Rule.Parse("11: 42 31 | 42 11 31");
 
-            // 211 is the wrong answer
-
             return input[1]
                 .Split("\n")
                 .Where(l => !string.IsNullOrEmpty(l))
-                .Select(m => Parse(m, 0, rules, 0).Any(l => l == m.Length))
+                .Select(m => Evaluate(m, 0, rules, 0).Any(l => l == m.Length))
                 .Count(v => v);
         }
 
-        private static IEnumerable<int> Parse(string input, int index, Dictionary<int, Rule> rules, int ruleIndex)
+        private static IEnumerable<int> Evaluate(string input, int index, Dictionary<int, Rule> rules, int ruleIndex)
         {
             var rule = rules[ruleIndex];
             if (rule.Symbol != 0)
@@ -59,8 +56,9 @@ namespace Puzzles
             {
                 foreach (var subRules in rule.Indexes)
                 {
-                    IEnumerable<int> startIndex = new int[] { index };
-                    foreach (var tmpIndex in subRules.Aggregate(startIndex, (current, subRule) => current.SelectMany(j => Parse(input, j, rules, subRule))))
+                    IEnumerable<int> startIndex = new [] { index };
+                    foreach (var tmpIndex in subRules
+                        .Aggregate(startIndex, (current, subRule) => current.SelectMany(j => Evaluate(input, j, rules, subRule))))
                     {
                         yield return tmpIndex;
                     }
