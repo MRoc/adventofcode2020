@@ -58,11 +58,7 @@ namespace Puzzles
             else
             {
                 IEnumerable<int> tmpIndex0 = new int[] { index };
-                foreach (var subRule in rule.Index0)
-                {
-                    tmpIndex0 = tmpIndex0.SelectMany(j => Parse(input, j, rules, subRule).ToArray());
-                }
-                foreach (var tmpIndex in tmpIndex0)
+                foreach (var tmpIndex in rule.Index0.Aggregate(tmpIndex0, (current, subRule) => current.SelectMany(j => Parse(input, j, rules, subRule))))
                 {
                     yield return tmpIndex;
                 }
@@ -70,11 +66,7 @@ namespace Puzzles
                 if (rule.Index1 is { })
                 {
                     IEnumerable<int> tmpIndex1 = new int[] { index };
-                    foreach (var subRule in rule.Index1)
-                    {
-                        tmpIndex1 = tmpIndex1.SelectMany(j => Parse(input, j, rules, subRule).ToArray());
-                    }
-                    foreach (var tmpIndex in tmpIndex1)
+                    foreach (var tmpIndex in rule.Index1.Aggregate(tmpIndex1, (current, subRule) => current.SelectMany(j => Parse(input, j, rules, subRule))))
                     {
                         yield return tmpIndex;
                     }
