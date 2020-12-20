@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Puzzles
@@ -43,7 +39,6 @@ namespace Puzzles
                 .Normalize()
                 .Combine()
                 .CreateVariations()
-                .ToArray()
                 .Sum(p => p.MarkAndCountSeaMonster());
         }
 
@@ -131,10 +126,7 @@ namespace Puzzles
         private static Dictionary<Point, Tile> Normalize(this Dictionary<Point, Tile> picture)
         {
             var minX = picture.Keys.Select(p => p.X).Min();
-            var maxX = picture.Keys.Select(p => p.X).Max();
-
             var minY = picture.Keys.Select(p => p.Y).Min();
-            var maxY = picture.Keys.Select(p => p.Y).Max();
 
             return picture.ToDictionary(
                 i => new Point(i.Key.X - minX, i.Key.Y - minY),
@@ -245,10 +237,7 @@ namespace Puzzles
         
         private static char[][] Combine(this Dictionary<Point, Tile> picture)
         {
-            var minX = picture.Keys.Select(p => p.X).Min();
             var maxX = picture.Keys.Select(p => p.X).Max();
-
-            var minY = picture.Keys.Select(p => p.Y).Min();
             var maxY = picture.Keys.Select(p => p.Y).Max();
 
             var d = picture.First().Value.Data.Length - 2;
@@ -316,28 +305,6 @@ namespace Puzzles
             return result;
         }
 
-        private static int CountSeaMonster(this char[][] picture)
-        {
-            var seaMonster = Seamonster().SeamonsterToPoints().ToArray();
-            var maxX = seaMonster.Max(t => t.X) + 1;
-            var maxY = seaMonster.Max(t=> t.Y) + 1;
-
-            var count = 0;
-
-            for (int y = 0; y < picture.Length - maxY; ++y)
-            {
-                for (int x = 0; x < picture[y].Length - maxX; ++x)
-                {
-                    if (seaMonster.All(p => picture[y + p.Y][x + p.X] == '1'))
-                    {
-                        count++;
-                    }
-                }
-            }
-            
-            return count;
-        }
-
         private static int MarkAndCountSeaMonster(this char[][] picture)
         {
             var seaMonster = Seamonster().SeamonsterToPoints().ToArray();
@@ -382,7 +349,7 @@ namespace Puzzles
 
         private static char[][] Seamonster()
         {
-            return new char[][]
+            return new []
             {
                 "                  # ".ToArray(),
                 "#    ##    ##    ###".ToArray(),
