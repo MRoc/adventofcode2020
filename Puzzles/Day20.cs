@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net;
 using System.Text;
 
 namespace Puzzles
 {
-    // Puzzle 1: 0
+    // Puzzle 1: 16192267830719
     // Puzzle 2: 0
     public static class Day20
     {
@@ -16,21 +14,31 @@ namespace Puzzles
         {
             var tiles = Input
                 .Load("Puzzles.Input.input20.txt").Split("\n\n")
+                .Where(l => !string.IsNullOrEmpty(l))
                 .Select(Tile.Parse)
                 .ToArray();
 
-            foreach (var number in tiles
-                .SelectMany(t => t.AsNumbers()).GroupBy(n => n))
+            var fourers = new List<long>();
+
+            foreach (var tile in tiles)
             {
-                Console.WriteLine($"{number.Key}: {number.Count()}x");
+                var numbersOfTile = tile.AsNumbers().Concat(tile.AsNumbers().Select(n => n.Reverse10Bits()));
+                var allOtherNumbers = tiles.Where(t => t.Id != tile.Id).SelectMany(t =>
+                    t.AsNumbers().Concat(t.AsNumbers().Select(n => n.Reverse10Bits())));
+
+                var overlap = numbersOfTile.Where(n => allOtherNumbers.Contains(n)).Count();
+
+                if (overlap == 4)
+                {
+                    fourers.Add(tile.Id);
+                }
             }
-            
-            return 0;
+
+            return fourers.Aggregate((a, b) => a * b);
         }
 
         public static long Puzzle2()
         {
-
             return 0;
         }
 
@@ -74,6 +82,10 @@ namespace Puzzles
             {
                 return new[] {Top, Right, Bottom, Left};
             }
+        }
+
+        record Point(int X, int Y)
+        {
         }
 
         private static string AsString(this IEnumerable<char> chars)
