@@ -51,6 +51,7 @@ namespace Puzzles
                 .ToArray();
         }
         
+        // TODO Return an tile[][]
         private static Dictionary<Point, Tile> Solve(this Tile[] tilesArray)
         {
             var tiles = tilesArray.ToList();
@@ -133,6 +134,7 @@ namespace Puzzles
                 i => i.Value);
         }
 
+        // TODO Crop data in constructor
         public record Tile(int Id, char[][] Data, int Top, int Right, int Bottom, int Left)
         {
             public static Tile Parse(string text)
