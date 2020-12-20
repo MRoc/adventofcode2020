@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Puzzles
 {
     // Puzzle 1: 151
-    // Puzzle 2: 0
+    // Puzzle 2: 386
     public static class Day19
     {
         public static long Puzzle1()
@@ -19,7 +20,7 @@ namespace Puzzles
             return input[1]
                 .Split("\n")
                 .Where(l => !string.IsNullOrEmpty(l))
-                .Select(m => Parse(m, 0, rules, 0) == m.Length)
+                .Select(m => Parse(m, 0, rules, 0).Any(l => l == m.Length))
                 .Count(v => v);
         }
 
@@ -40,51 +41,47 @@ namespace Puzzles
             return input[1]
                 .Split("\n")
                 .Where(l => !string.IsNullOrEmpty(l))
-                .Select(m => Parse(m, 0, rules, 0) >= m.Length)
+                .Select(m => Parse(m, 0, rules, 0).Any(l => l == m.Length))
                 .Count(v => v);
         }
-        
-        private static int Parse(string input, int index, Dictionary<int, Rule> rules, int ruleIndex)
+
+        private static IEnumerable<int> Parse(string input, int index, Dictionary<int, Rule> rules, int ruleIndex)
         {
             var rule = rules[ruleIndex];
             if (rule.Symbol != 0)
             {
                 if (index < input.Length && input[index] == rule.Symbol)
                 {
-                    return index + 1;
+                    yield return index + 1;
                 }
             }
             else
             {
-                var tmpIndex0 = index;
-                for (int i = 0; i < rule.Index0.Length && tmpIndex0 != -1; ++i)
+                IEnumerable<int> tmpIndex0 = new int[] { index };
+                foreach (var subRule in rule.Index0)
                 {
-                    tmpIndex0 = Parse(input, tmpIndex0, rules, rule.Index0[i]);
+                    tmpIndex0 = tmpIndex0.SelectMany(j => Parse(input, j, rules, subRule).ToArray());
                 }
-
-                if (tmpIndex0 > 0)
+                foreach (var tmpIndex in tmpIndex0)
                 {
-                    return tmpIndex0;
+                    yield return tmpIndex;
                 }
 
                 if (rule.Index1 is { })
                 {
-                    var tmpIndex1 = index;
-                    for (int i = 0; i < rule.Index1.Length && tmpIndex1 != -1; ++i)
+                    IEnumerable<int> tmpIndex1 = new int[] { index };
+                    foreach (var subRule in rule.Index1)
                     {
-                        tmpIndex1 = Parse(input, tmpIndex1, rules, rule.Index1[i]);
+                        tmpIndex1 = tmpIndex1.SelectMany(j => Parse(input, j, rules, subRule).ToArray());
                     }
-
-                    if (tmpIndex1 > 0)
+                    foreach (var tmpIndex in tmpIndex1)
                     {
-                        return tmpIndex1;
+                        yield return tmpIndex;
                     }
                 }
             }
-
-            return -1;
         }
-
+        
         public record Rule(int Index, char Symbol, int[] Index0, int[] Index1)
         {
             public static Rule Parse(string line)
