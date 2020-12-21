@@ -1,18 +1,56 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Puzzles
 {
     // Puzzle 1: 2075
-    // Puzzle 2: 0
+    // Puzzle 2: zfcqk,mdtvbb,ggdbl,frpvd,mgczn,zsfzq,kdqls,kktsjbh
     public static class Day21
     {
         public static long Puzzle1()
         {
-            var recipes = Input
+            var allergeneMap = CreateAllergenMap();
+
+            return LoadRecipes()
+                .SelectMany(r => r.Ingredients)
+                .Where(i => !allergeneMap.ContainsKey(i))
+                .Count();
+        }
+
+        public static string Puzzle2()
+        {
+            return CreateAllergenMap()
+                .OrderBy(i => i.Value)
+                .Select(i => i.Key)
+                .Aggregate((a, b) => a + "," + b);
+        }
+
+        public record Recipe(string[] Ingredients, string[] Allergens)
+        {
+            public static Recipe Parse(string line)
+            {
+                var parts = line.Replace(")", "").Split(" (contains ");
+
+                return new Recipe(
+                    parts[0].Split(" ").Select(w => w.Trim()).ToArray(),
+                    parts[1].Split(", ").Select(w => w.Trim()).ToArray());
+            }
+        }
+
+        private static Recipe[] LoadRecipes()
+        {
+            return Input
                 .LoadLines("Puzzles.Input.input21.txt")
                 .Select(Recipe.Parse)
                 .ToArray();
+        }
+
+        private static Dictionary<string, string> CreateAllergenMap()
+        {
+            var result = new Dictionary<string, string>();
+
+            var recipes = LoadRecipes();
 
             while (true)
             {
@@ -20,7 +58,7 @@ namespace Puzzles
                     .SelectMany(r => r.Allergens)
                     .Distinct()
                     .ToArray();
-                
+
                 var allergensIngredientMap = allergens
                     .ToDictionary(
                         a => a,
@@ -36,6 +74,8 @@ namespace Puzzles
 
                 if (single.Ingredient is { })
                 {
+                    result[single.Ingredient] = single.Allergene;
+
                     recipes = recipes
                         .Select(r => new Recipe(
                             r.Ingredients.Where(i => i != single.Ingredient).ToArray(),
@@ -48,24 +88,7 @@ namespace Puzzles
                 }
             }
 
-            return recipes.SelectMany(r => r.Ingredients).Count();
-        }
-
-        public static string Puzzle2()
-        {
-            return string.Empty;
-        }
-
-        public record Recipe(string[] Ingredients, string[] Allergens)
-        {
-            public static Recipe Parse(string line)
-            {
-                var parts = line.Replace(")", "").Split(" (contains ");
-
-                return new Recipe(
-                    parts[0].Split(" ").Select(w => w.Trim()).ToArray(),
-                    parts[1].Split(", ").Select(w => w.Trim()).ToArray());
-            }
+            return result;
         }
     }
 }
