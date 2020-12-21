@@ -10,9 +10,10 @@ namespace Puzzles
     {
         public static long Puzzle1()
         {
-            var allergeneMap = CreateAllergenMap();
+            var recipes = LoadRecipes();
+            var allergeneMap = recipes.CreateAllergenMap();
 
-            return LoadRecipes()
+            return recipes
                 .SelectMany(r => r.Ingredients)
                 .Where(i => !allergeneMap.ContainsKey(i))
                 .Count();
@@ -20,7 +21,8 @@ namespace Puzzles
 
         public static string Puzzle2()
         {
-            return CreateAllergenMap()
+            return LoadRecipes()
+                .CreateAllergenMap()
                 .OrderBy(i => i.Value)
                 .Select(i => i.Key)
                 .Aggregate((a, b) => a + "," + b);
@@ -46,20 +48,15 @@ namespace Puzzles
                 .ToArray();
         }
 
-        private static Dictionary<string, string> CreateAllergenMap()
+        private static Dictionary<string, string> CreateAllergenMap(this IReadOnlyCollection<Recipe> recipes)
         {
             var result = new Dictionary<string, string>();
 
-            var recipes = LoadRecipes();
-
             while (true)
             {
-                var allergens = recipes
+                var allergensIngredientMap = recipes
                     .SelectMany(r => r.Allergens)
                     .Distinct()
-                    .ToArray();
-
-                var allergensIngredientMap = allergens
                     .ToDictionary(
                         a => a,
                         a => recipes
