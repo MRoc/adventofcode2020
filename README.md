@@ -11,3 +11,4 @@ Principles:
 
 
 It's day 15 and the puzzles drained all my brain juice. I feel like a squeezed lemon ;)
+It's day 21 and I gave up writing clean code long time ago :/
