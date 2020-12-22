@@ -6,60 +6,132 @@ using System.Text.RegularExpressions;
 namespace Puzzles
 {
     // Puzzle 1: 31629
-    // Puzzle 2: 0
+    // Puzzle 2: 35196
     public static class Day22
     {
         public static long Puzzle1()
         {
-            var match = DeckDecoder.Match(Input.Load("Puzzles.Input.input22.txt"));
-
-            var (deck0, deck1) = Play(
-                match.Groups[2].Captures.Select(c => byte.Parse(c.Value)).ToArray(),
-                match.Groups[4].Captures.Select(c => byte.Parse(c.Value)).ToArray());
-            
-            var winningDeck = deck0.Any() ? deck0 : deck1;
-
-            return winningDeck.AsEnumerable().Reverse().Select((n, i) => ((int)n) * (i + 1)).Sum();
+            return Puzzle(recursive: false);
         }
 
         public static long Puzzle2()
         {
-            return 0;
+            return Puzzle(recursive: true);
+        }
+
+        private static long Puzzle(bool recursive)
+        {
+            var match = DeckDecoder.Match(Input.Load("Puzzles.Input.input22.txt"));
+            
+            var (deck0, deck1) = Play(
+                match.Groups[2].Captures.Select(c => byte.Parse(c.Value)).ToArray(),
+                match.Groups[4].Captures.Select(c => byte.Parse(c.Value)).ToArray(),
+                recursive);
+
+            var winningDeck = deck0.Any() ? deck0 : deck1;
+
+            return winningDeck.AsEnumerable().Reverse().Select((n, i) => ((int)n) * (i + 1)).Sum();
         }
         
-        private static (byte[], byte[]) Play(byte[] deck0, byte[] deck1)
+        private static (byte[], byte[]) Play(byte[] deck0, byte[] deck1, bool recursive)
         {
+            var previousRounds = new HashSet<Deck>();
+
             var queue0 = new Queue<byte>(deck0);
             var queue1 = new Queue<byte>(deck1);
 
-            var round = 0;
-            
             while (queue0.Any() && queue1.Any())
             {
+                if (previousRounds.Contains(new Deck(queue0.ToArray(), queue1.ToArray())))
+                {
+                    return (deck0.Take(1).ToArray(), deck1.Take(0).ToArray());
+                }
+                previousRounds.Add(new Deck(queue0.ToArray(), queue1.ToArray()));
+
                 var card0 = queue0.Dequeue();
                 var card1 = queue1.Dequeue();
 
-                if (card0 < card1)
+                var winner = -1;
+                if (recursive && queue0.Count >= card0 && queue1.Count >= card1)
                 {
-                    queue1.Enqueue(card1);
-                    queue1.Enqueue(card0);
+                    var (subQueue0, subQueue1) = Play(
+                        queue0.Take(card0).ToArray(),
+                        queue1.Take(card1).ToArray(),
+                        true);
+                    winner = subQueue0.Any() ? 0 : 1;
+                }
+                else if (card0 < card1)
+                {
+                    winner = 1;
                 }
                 else if (card1 < card0)
+                {
+                    winner = 0;
+                }
+
+                if (winner == 0)
                 {
                     queue0.Enqueue(card0);
                     queue0.Enqueue(card1);
                 }
-                else
+                else if (winner == 1)
                 {
-                    throw new NotImplementedException();
+                    queue1.Enqueue(card1);
+                    queue1.Enqueue(card0);
                 }
-                
-                round++;
             }
 
-            Console.WriteLine($"Round: {round}");
-
             return (queue0.ToArray(), queue1.ToArray());
+        }
+
+        class Deck : IEquatable<Deck>
+        {
+            public Deck(byte[] a, byte[] b)
+            {
+                _a = a;
+                _b = b;
+                _hashCode = _a.CalculateHashCode() ^ _b.CalculateHashCode();
+            }
+
+            private readonly byte[] _a;
+
+            private readonly byte[] _b;
+
+            private readonly int _hashCode;
+
+            public bool Equals(Deck other)
+            {
+                return other is { }
+                       && Enumerable.SequenceEqual(_a, other._a)
+                       && Enumerable.SequenceEqual(_b, other._b);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return Equals(obj as Deck);
+            }
+
+            public override int GetHashCode()
+            {
+                return _hashCode;
+            }
+        }
+
+        public static int CalculateHashCode(this byte[] array)
+        {
+            unchecked
+            {
+                if (array == null)
+                {
+                    return 0;
+                }
+                int hash = 17;
+                foreach (byte element in array)
+                {
+                    hash = hash * 31 + element.GetHashCode();
+                }
+                return hash;
+            }
         }
 
         private static Regex DeckDecoder =
