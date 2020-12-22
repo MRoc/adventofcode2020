@@ -42,11 +42,12 @@ namespace Puzzles
 
             while (queue0.Any() && queue1.Any())
             {
-                if (previousRounds.Contains(new Deck(queue0.ToArray(), queue1.ToArray())))
+                var currentDeck = new Deck(queue0.ToArray(), queue1.ToArray());
+                if (previousRounds.Contains(currentDeck))
                 {
                     return (deck0.Take(1).ToArray(), deck1.Take(0).ToArray());
                 }
-                previousRounds.Add(new Deck(queue0.ToArray(), queue1.ToArray()));
+                previousRounds.Add(currentDeck);
 
                 var card0 = queue0.Dequeue();
                 var card1 = queue1.Dequeue();
