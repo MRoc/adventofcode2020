@@ -122,16 +122,12 @@ namespace Puzzles
         {
             unchecked
             {
-                if (array == null)
+                var result = 0;
+                foreach (byte b in array)
                 {
-                    return 0;
+                    result = (result * 31) ^ b;
                 }
-                int hash = 17;
-                foreach (byte element in array)
-                {
-                    hash = hash * 31 + element.GetHashCode();
-                }
-                return hash;
+                return result;
             }
         }
 
