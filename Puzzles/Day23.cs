@@ -97,11 +97,6 @@ namespace Puzzles
             public int Value { get; }
             public Node Prev { get; set; }
             public Node Next { get; set; }
-
-            public override string ToString()
-            {
-                return Value.ToString();
-            }
         }
 
         private class CircularLinkedList : IEnumerable<Node>
