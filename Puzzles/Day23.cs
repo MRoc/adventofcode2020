@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Puzzles
 {
@@ -12,7 +11,10 @@ namespace Puzzles
     {
         public static string Puzzle1()
         {
-            var nodes = Enumerable.Range(1, 9).Select(i => new Node(i)).ToArray();
+            var cups = 9;
+            var moves = 100;
+
+            var nodes = Enumerable.Range(1, cups).Select(i => new Node(i)).ToArray();
             
             var list = new CircularLinkedList(nodes);
             
@@ -21,7 +23,7 @@ namespace Puzzles
                 list.Add(nodes[(int)c - (int)'0' - 1]);
             }
             
-            list.RunMoves(100, 9);
+            list.RunMoves(moves, cups);
             
             list.Start = list[1];
             return list.Skip(1).Select(n => n.Value.ToString()).Aggregate((a, b) => a + b);
@@ -47,9 +49,12 @@ namespace Puzzles
             list.RunMoves(moves, cups);
             
             list.Start = list[1];
-            var missingStars = list.Skip(1).Take(2).ToArray();
             
-            return missingStars.Select(i => (long)i.Value).Aggregate((a, b) => a * b);
+            return list
+                .Skip(1)
+                .Take(2)
+                .Select(i => (long)i.Value)
+                .Aggregate((a, b) => a * b);
         }
         
         private static void RunMoves(this CircularLinkedList list, int count, int max)
@@ -172,23 +177,6 @@ namespace Puzzles
             IEnumerator IEnumerable.GetEnumerator()
             {
                 throw new NotImplementedException();
-            }
-
-            public override string ToString()
-            {
-                var sb = new StringBuilder();
-
-                foreach (var node in this)
-                {
-                    if (sb.Length > 0)
-                    {
-                        sb.Append(", ");
-                    }
-
-                    sb.Append(node.Value);
-                }
-
-                return sb.ToString();
             }
         }
     }
