@@ -34,7 +34,12 @@ namespace Puzzles
             var cups = 1000000;
             var moves = 10000000;
 
-            var nodes = Enumerable.Range(1, cups).Select(i => new Node(i)).ToArray();
+            var nodes = new Node[cups];
+            for (int i = 0; i < cups; ++i)
+            {
+                nodes[i] = new Node(i + 1);
+            }
+
             var list = new CircularLinkedList(nodes);
             
             foreach (var c in "469217538")
@@ -59,12 +64,18 @@ namespace Puzzles
         
         private static void RunMoves(this CircularLinkedList list, int count, int max)
         {
+            var current = default(Node);
+            var pick = new Node[3];
+            var next = default(Node);
+            
             foreach (var _ in Enumerable.Range(0, count))
             {
-                var current = list.First();
-                var pick = list.Skip(1).Take(3).ToArray();
-                var next = list.Skip(4).First();
-
+                current = list.Start;
+                pick[0] = current.Next;
+                pick[1] = pick[0].Next;
+                pick[2] = pick[1].Next;
+                next = pick[2].Next;
+                
                 var destination = current.Value.Dec(max);
                 while (pick.Contains(list[destination]))
                 {
@@ -130,24 +141,24 @@ namespace Puzzles
                 }
             }
 
-            public void Remove(IReadOnlyCollection<Node> nodes)
+            public void Remove(Node[] nodes)
             {
-                var first = nodes.First();
-                var last = nodes.Last();
+                var first = nodes[0];
+                var last = nodes[^1];
 
                 var prev = first.Prev;
                 var next = last.Next;
 
                 prev.Next = next;
-                first.Prev = null;
-                last.Next = null;
+                //first.Prev = null;
+                //last.Next = null;
                 next.Prev = prev;
             }
 
-            public void Insert(IReadOnlyCollection<Node> nodes, Node node)
+            public void Insert(Node[] nodes, Node node)
             {
-                var first = nodes.First();
-                var last = nodes.Last();
+                var first = nodes[0];
+                var last = nodes[^1];
 
                 var prev = node;
                 var next = node.Next;
