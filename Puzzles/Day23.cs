@@ -7,41 +7,69 @@ using System.Text;
 namespace Puzzles
 {
     // Puzzle 1: 27956483
-    // Puzzle 2: 0
+    // Puzzle 2: 18930983775
     public static class Day23
     {
         public static string Puzzle1()
         {
-            var list = new CircularLinkedList();
+            var nodes = Enumerable.Range(1, 9).Select(i => new Node(i)).ToArray();
+            
+            var list = new CircularLinkedList(nodes);
+            
             foreach (var c in "469217538")
             {
-                list.Add(new Node((int)c - (int)'0'));
+                list.Add(nodes[(int)c - (int)'0' - 1]);
             }
-
-            foreach (var _ in Enumerable.Range(1, 100))
-            {
-                var current = list.First();
-                var pick = list.Skip(1).Take(3).ToArray();
-                var next = list.Skip(4).First();
-
-                var destination = current.Value.Dec(9);
-                while (pick.Contains(list[destination]))
-                {
-                    destination = destination.Dec(9);
-                }
-
-                list.Remove(pick);
-                list.Insert(pick, list[destination]);
-                list.Start = next;
-            }
-
+            
+            list.RunMoves(100, 9);
+            
             list.Start = list[1];
             return list.Skip(1).Select(n => n.Value.ToString()).Aggregate((a, b) => a + b);
         }
 
         public static long Puzzle2()
         {
-            return 0;
+            var cups = 1000000;
+            var moves = 10000000;
+
+            var nodes = Enumerable.Range(1, cups).Select(i => new Node(i)).ToArray();
+            var list = new CircularLinkedList(nodes);
+            
+            foreach (var c in "469217538")
+            {
+                list.Add(nodes[(int)c - (int)'0' - 1]);
+            }
+            for (int i = 10; i <= cups; ++i)
+            {
+                list.Add(nodes[i - 1]);
+            }
+            
+            list.RunMoves(moves, cups);
+            
+            list.Start = list[1];
+            var missingStars = list.Skip(1).Take(2).ToArray();
+            
+            return missingStars.Select(i => (long)i.Value).Aggregate((a, b) => a * b);
+        }
+        
+        private static void RunMoves(this CircularLinkedList list, int count, int max)
+        {
+            foreach (var _ in Enumerable.Range(0, count))
+            {
+                var current = list.First();
+                var pick = list.Skip(1).Take(3).ToArray();
+                var next = list.Skip(4).First();
+
+                var destination = current.Value.Dec(max);
+                while (pick.Contains(list[destination]))
+                {
+                    destination = destination.Dec(max);
+                }
+
+                list.Remove(pick);
+                list.Insert(pick, list[destination]);
+                list.Start = next;
+            }
         }
 
         private static int Dec(this int c, int max)
@@ -73,9 +101,16 @@ namespace Puzzles
 
         private class CircularLinkedList : IEnumerable<Node>
         {
+            public CircularLinkedList(Node[] nodes)
+            {
+                Nodes = nodes;
+            }    
+            
             public Node Start { get; set; }
+            
+            private Node[] Nodes { get; }
 
-            public Node this[int value] => this.First(n => n.Value == value);
+            public Node this[int value] => Nodes[value - 1];
 
             public void Add(Node node)
             {
