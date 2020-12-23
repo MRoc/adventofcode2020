@@ -20,7 +20,7 @@ namespace Puzzles
             
             foreach (var c in "469217538")
             {
-                list.Add(nodes[(int)c - (int)'0' - 1]);
+                list.Add(nodes[(int)c - '0' - 1]);
             }
             
             list.RunMoves(moves, cups);
@@ -35,7 +35,7 @@ namespace Puzzles
             var moves = 10000000;
 
             var nodes = new Node[cups];
-            for (int i = 0; i < cups; ++i)
+            for (long i = 0; i < cups; ++i)
             {
                 nodes[i] = new Node(i + 1);
             }
@@ -44,9 +44,9 @@ namespace Puzzles
             
             foreach (var c in "469217538")
             {
-                list.Add(nodes[(int)c - (int)'0' - 1]);
+                list.Add(nodes[(long)c - '0' - 1]);
             }
-            for (int i = 10; i <= cups; ++i)
+            for (long i = 10; i <= cups; ++i)
             {
                 list.Add(nodes[i - 1]);
             }
@@ -58,17 +58,17 @@ namespace Puzzles
             return list
                 .Skip(1)
                 .Take(2)
-                .Select(i => (long)i.Value)
+                .Select(i => i.Value)
                 .Aggregate((a, b) => a * b);
         }
         
-        private static void RunMoves(this CircularLinkedList list, int count, int max)
+        private static void RunMoves(this CircularLinkedList list, long count, long max)
         {
             var current = default(Node);
             var pick = new Node[3];
             var next = default(Node);
             
-            foreach (var _ in Enumerable.Range(0, count))
+            for (long i=0; i < count; ++i)
             {
                 current = list.Start;
                 pick[0] = current.Next;
@@ -77,6 +77,7 @@ namespace Puzzles
                 next = pick[2].Next;
                 
                 var destination = current.Value.Dec(max);
+
                 while (pick.Contains(list[destination]))
                 {
                     destination = destination.Dec(max);
@@ -88,7 +89,7 @@ namespace Puzzles
             }
         }
 
-        private static int Dec(this int c, int max)
+        private static long Dec(this long c, long max)
         {
             c--;
             if (c == 0)
@@ -100,14 +101,14 @@ namespace Puzzles
 
         private class Node
         {
-            public Node(int value)
+            public Node(long value)
             {
                 Value = value;
             }
 
-            public int Value { get; }
-            public Node Prev { get; set; }
-            public Node Next { get; set; }
+            public long Value;
+            public Node Prev;
+            public Node Next;
         }
 
         private class CircularLinkedList : IEnumerable<Node>
@@ -121,7 +122,7 @@ namespace Puzzles
             
             private Node[] Nodes { get; }
 
-            public Node this[int value] => Nodes[value - 1];
+            public Node this[long value] => Nodes[value - 1];
 
             public void Add(Node node)
             {
@@ -150,8 +151,6 @@ namespace Puzzles
                 var next = last.Next;
 
                 prev.Next = next;
-                //first.Prev = null;
-                //last.Next = null;
                 next.Prev = prev;
             }
 
