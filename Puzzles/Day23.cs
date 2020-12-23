@@ -15,7 +15,7 @@ namespace Puzzles
             var list = new CircularLinkedList();
             foreach (var c in "469217538")
             {
-                list.Add(new Node(c));
+                list.Add(new Node((int)c - (int)'0'));
             }
 
             foreach (var _ in Enumerable.Range(1, 100))
@@ -24,10 +24,10 @@ namespace Puzzles
                 var pick = list.Skip(1).Take(3).ToArray();
                 var next = list.Skip(4).First();
 
-                var destination = current.Value.Dec();
+                var destination = current.Value.Dec(9);
                 while (pick.Contains(list[destination]))
                 {
-                    destination = destination.Dec();
+                    destination = destination.Dec(9);
                 }
 
                 list.Remove(pick);
@@ -35,7 +35,7 @@ namespace Puzzles
                 list.Start = next;
             }
 
-            list.Start = list['1'];
+            list.Start = list[1];
             return list.Skip(1).Select(n => n.Value.ToString()).Aggregate((a, b) => a + b);
         }
 
@@ -44,24 +44,24 @@ namespace Puzzles
             return 0;
         }
 
-        private static char Dec(this char c)
+        private static int Dec(this int c, int max)
         {
-            c = (char)(c - 1);
-            if (c == '0')
+            c--;
+            if (c == 0)
             {
-                c = '9';
+                c = max;
             }
             return c;
         }
 
         private class Node
         {
-            public Node(char value)
+            public Node(int value)
             {
                 Value = value;
             }
 
-            public char Value { get; }
+            public int Value { get; }
             public Node Prev { get; set; }
             public Node Next { get; set; }
 
@@ -75,7 +75,7 @@ namespace Puzzles
         {
             public Node Start { get; set; }
 
-            public Node this[char value] => this.First(n => n.Value == value);
+            public Node this[int value] => this.First(n => n.Value == value);
 
             public void Add(Node node)
             {
