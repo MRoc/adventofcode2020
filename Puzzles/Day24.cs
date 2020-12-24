@@ -5,7 +5,7 @@ using System.Linq;
 namespace Puzzles
 {
     // Puzzle 1: 450
-    // Puzzle 2: 0
+    // Puzzle 2: 4059
     public static class Day24
     {
         public static long Puzzle1()
@@ -27,14 +27,14 @@ namespace Puzzles
                 .GroupBy(p => p)
                 .Where(g => g.Count() % 2 == 1)
                 .Select(g => g.Key)
-                .ToArray();
+                .ToHashSet();
             
             foreach (var _ in Enumerable.Range(0, 100))
             {
-                state = state.NextState().Distinct().ToArray();
+                state = state.NextState().Distinct().ToHashSet();
             }    
             
-            return state.Length;
+            return state.Count;
         }
 
         private static string[][] ParsePaths(this IEnumerable<string> lines)
@@ -72,7 +72,7 @@ namespace Puzzles
             return Directions.Select(d => Step(tile, d));
         }
         
-        private static IEnumerable<(int x, int y)> NextState(this (int x, int y)[] state)
+        private static IEnumerable<(int x, int y)> NextState(this HashSet<(int x, int y)> state)
         {
             foreach (var tile in state)
             {
