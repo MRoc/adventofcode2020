@@ -17,10 +17,10 @@ namespace Puzzles
             var nodes = Enumerable.Range(1, cups).Select(i => new Node(i)).ToArray();
             
             var list = new CircularLinkedList(nodes);
-            
-            foreach (var c in "469217538")
+
+            foreach (var i in PuzzleInput())
             {
-                list.Add(nodes[(int)c - '0' - 1]);
+                list.Add(nodes[i - 1]);
             }
             
             list.RunMoves(moves, cups);
@@ -42,9 +42,9 @@ namespace Puzzles
 
             var list = new CircularLinkedList(nodes);
             
-            foreach (var c in "469217538")
+            foreach (var i in PuzzleInput())
             {
-                list.Add(nodes[(long)c - '0' - 1]);
+                list.Add(nodes[i - 1]);
             }
             for (long i = 10; i <= cups; ++i)
             {
@@ -96,6 +96,11 @@ namespace Puzzles
                 c = max;
             }
             return c;
+        }
+        
+        private static IEnumerable<int> PuzzleInput()
+        {
+            return "469217538".Select(c => (int) c - '0');
         }
 
         private class Node
