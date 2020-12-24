@@ -9,26 +9,18 @@ namespace Puzzles
     {
         public static long Puzzle1()
         {
-            var state = LoadInput3();
-
-            foreach (var _ in Enumerable.Range(0, 6))
-            {
-                state = state.NextState();
-            }
-
-            return state.Length;
+            return Enumerable
+                .Range(0, 6)
+                .Aggregate(LoadInput3(), (a, _) => a.NextState())
+                .Length;
         }
 
         public static long Puzzle2()
         {
-            var state = LoadInput4();
-            
-            foreach (var _ in Enumerable.Range(0, 6))
-            {
-                state = state.NextState();
-            }
-
-            return state.Length;
+            return Enumerable
+                .Range(0, 6)
+                .Aggregate(LoadInput4(), (a, _) => a.NextState())
+                .Length;
         }
 
         private static IAdjacents[] LoadInput3()
