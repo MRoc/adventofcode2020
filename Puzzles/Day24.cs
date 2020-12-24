@@ -71,23 +71,16 @@ namespace Puzzles
 
         private static IEnumerable<(int x, int y)> NextState(this HashSet<(int x, int y)> state)
         {
-            foreach (var tile in state)
-            {
-                var countAdjacentTiles = tile.AdjacentTiles().Count(state.Contains);
-                if (countAdjacentTiles > 0 && countAdjacentTiles <= 2)
-                {
-                    yield return tile;
-                }
-
-                foreach (var adjacentTile in tile.AdjacentTiles().Where(t => !state.Contains(t)))
-                {
-                    var c = adjacentTile.AdjacentTiles().Count(state.Contains);
-                    if (c == 2)
-                    {
-                        yield return adjacentTile;
-                    }
-                }
-            }
+            return state
+                .Where(t => t.AdjacentTiles().Count(state.Contains).IsInRange(1, 2))
+                .Concat(state
+                    .SelectMany(s => s.AdjacentTiles().Where(t => !state.Contains(t)))
+                    .Where(t => t.AdjacentTiles().Count(state.Contains) == 2));
+        }
+        
+        private static bool IsInRange(this int value, int min, int max)
+        {
+            return value >= min && value <= max;
         }
     }
 }
