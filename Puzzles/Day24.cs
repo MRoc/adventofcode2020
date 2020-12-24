@@ -1,42 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 
 namespace Puzzles
 {
-    // Puzzle 1: 0
+    // Puzzle 1: 450
     // Puzzle 2: 0
     public static class Day24
     {
         public static long Puzzle1()
         {
-            var paths = Input
+            return Input
                 .LoadLines("Puzzles.Input.input24.txt")
-                .ParsePaths();
-
-            var tiles = new HashSet<(int x, int y)>();
-            
-            foreach (var path in paths)
-            {
-                var p = (x: 0, y: 0);
-                foreach (var direction in path)
-                {
-                    p = Step(p, direction);
-                }
-
-                if (tiles.Contains(p))
-                {
-                    tiles.Remove(p);
-                }
-                else
-                {
-                    tiles.Add(p);
-                }
-            }
-            
-            return tiles.Count;
+                .ParsePaths()
+                .Select(path => path.Aggregate((x: 0, y: 0), Step))
+                .GroupBy(p => p)
+                .Count(g => g.Count() % 2 == 1);
         }
 
         public static long Puzzle2()
@@ -61,10 +40,7 @@ namespace Puzzles
             }
         }
 
-        private static string[] Directions = new[]
-        {
-            "se", "sw", "nw", "ne", "w", "e"
-        };
+        private static string[] Directions = new[] { "se", "sw", "nw", "ne", "w", "e" };
 
         private static (int x, int y) Step((int x, int y) p, string direction) => direction switch
         {
