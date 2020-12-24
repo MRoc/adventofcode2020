@@ -20,21 +20,18 @@ namespace Puzzles
 
         public static long Puzzle2()
         {
-            var state = Input
-                .LoadLines("Puzzles.Input.input24.txt")
-                .ParsePaths()
-                .Select(path => path.Aggregate((x: 0, y: 0), Step))
-                .GroupBy(p => p)
-                .Where(g => g.Count() % 2 == 1)
-                .Select(g => g.Key)
-                .ToHashSet();
-            
-            foreach (var _ in Enumerable.Range(0, 100))
-            {
-                state = state.NextState().Distinct().ToHashSet();
-            }    
-            
-            return state.Count;
+            return Enumerable.Range(0, 100)
+                .Aggregate(
+                    Input
+                        .LoadLines("Puzzles.Input.input24.txt")
+                        .ParsePaths()
+                        .Select(path => path.Aggregate((x: 0, y: 0), Step))
+                        .GroupBy(p => p)
+                        .Where(g => g.Count() % 2 == 1)
+                        .Select(g => g.Key)
+                        .ToHashSet(),
+                    (a, _) => a.NextState().ToHashSet())
+                .Count;
         }
 
         private static string[][] ParsePaths(this IEnumerable<string> lines)
@@ -54,37 +51,37 @@ namespace Puzzles
             }
         }
 
-        private static string[] Directions = new[] { "se", "sw", "nw", "ne", "w", "e" };
+        private static readonly string[] Directions = new[] { "se", "sw", "nw", "ne", "w", "e" };
 
         private static (int x, int y) Step((int x, int y) p, string direction) => direction switch
         {
-            "se" => p.y % 2 == 0 ? (x: p.x + 1,  y: p.y - 1) : (x: p.x + 0, y: p.y - 1),
-            "sw" => p.y % 2 == 0 ? (x: p.x + 0,  y: p.y - 1) : (x: p.x - 1, y: p.y - 1),
-            "nw" => p.y % 2 == 0 ? (x: p.x + 0,  y: p.y + 1) : (x: p.x - 1, y: p.y + 1),
-            "ne" => p.y % 2 == 0 ? (x: p.x + 1,  y: p.y + 1) : (x: p.x + 0, y: p.y + 1),
-            "w"  => (x: p.x - 1, y: p.y + 0),
-            "e"  => (x: p.x + 1,  y: p.y + 0),
-            _    => throw new NotSupportedException()
+            "se" => p.y % 2 == 0 ? (x: p.x + 1, y: p.y - 1) : (x: p.x + 0, y: p.y - 1),
+            "sw" => p.y % 2 == 0 ? (x: p.x + 0, y: p.y - 1) : (x: p.x - 1, y: p.y - 1),
+            "nw" => p.y % 2 == 0 ? (x: p.x + 0, y: p.y + 1) : (x: p.x - 1, y: p.y + 1),
+            "ne" => p.y % 2 == 0 ? (x: p.x + 1, y: p.y + 1) : (x: p.x + 0, y: p.y + 1),
+            "w" => (x: p.x - 1, y: p.y + 0),
+            "e" => (x: p.x + 1, y: p.y + 0),
+            _ => throw new NotSupportedException()
         };
 
         private static IEnumerable<(int x, int y)> AdjacentTiles(this (int x, int y) tile)
         {
             return Directions.Select(d => Step(tile, d));
         }
-        
+
         private static IEnumerable<(int x, int y)> NextState(this HashSet<(int x, int y)> state)
         {
             foreach (var tile in state)
             {
-                var countAdjacentTiles = tile.AdjacentTiles().Count(p => state.Contains(p));
+                var countAdjacentTiles = tile.AdjacentTiles().Count(state.Contains);
                 if (countAdjacentTiles > 0 && countAdjacentTiles <= 2)
                 {
                     yield return tile;
                 }
-                
-                foreach (var adjacentTile in tile.AdjacentTiles().Where(t => !state.Contains(t))) 
+
+                foreach (var adjacentTile in tile.AdjacentTiles().Where(t => !state.Contains(t)))
                 {
-                    var c = adjacentTile.AdjacentTiles().Count(p => state.Contains(p));
+                    var c = adjacentTile.AdjacentTiles().Count(state.Contains);
                     if (c == 2)
                     {
                         yield return adjacentTile;
