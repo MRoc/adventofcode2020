@@ -83,8 +83,7 @@ namespace Puzzles
                     destination = destination.Dec(max);
                 }
 
-                list.Remove(pick);
-                list.Insert(pick, list[destination]);
+                list.Move(current, pick, list[destination]);
                 list.Start = next;
             }
         }
@@ -107,7 +106,6 @@ namespace Puzzles
             }
 
             public long Value;
-            public Node Prev;
             public Node Next;
         }
 
@@ -120,6 +118,8 @@ namespace Puzzles
             
             public Node Start { get; set; }
             
+            public Node LastInsert { get; set; }
+            
             private Node[] Nodes { get; }
 
             public Node this[long value] => Nodes[value - 1];
@@ -129,43 +129,25 @@ namespace Puzzles
                 if (Start is null)
                 {
                     Start = node;
-                    Start.Prev = node;
                     Start.Next = node;
                 }
                 else
                 {
-                    var before = Start.Prev;
-                    before.Next = node;
-                    node.Prev = before;
+                    LastInsert.Next = node;
                     node.Next = Start;
-                    Start.Prev = node;
                 }
+
+                LastInsert = node;
             }
 
-            public void Remove(Node[] nodes)
+            public void Move(Node from, Node[] nodes, Node node)
             {
                 var first = nodes[0];
                 var last = nodes[^1];
 
-                var prev = first.Prev;
-                var next = last.Next;
-
-                prev.Next = next;
-                next.Prev = prev;
-            }
-
-            public void Insert(Node[] nodes, Node node)
-            {
-                var first = nodes[0];
-                var last = nodes[^1];
-
-                var prev = node;
-                var next = node.Next;
-
-                prev.Next = first;
-                first.Prev = prev;
-                last.Next = next;
-                next.Prev = last;
+                from.Next = last.Next;
+                last.Next = node.Next;
+                node.Next = first;
             }
 
             public IEnumerator<Node> GetEnumerator()
